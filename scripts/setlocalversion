@@ -77,7 +77,7 @@ scm_version()
 		# Check for uncommitted changes
 		if git diff-index --name-only HEAD | grep -v "^scripts/package" \
 		    | read dummy; then
-			printf '%s' -dirty
+			printf '%s' #-dirty
 		fi
 
 		# All done with git
