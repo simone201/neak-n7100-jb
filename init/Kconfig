@@ -27,6 +27,11 @@ config IRQ_WORK
 	bool
 	depends on HAVE_IRQ_WORK
 
+config AOSP_ROM_SUPPORT
+	bool "Add support for AOSP ROMs on the GS3"
+	help
+		Enable it to use an AOSP based ROM
+
 menu "General setup"
 
 config EXPERIMENTAL
