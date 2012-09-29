@@ -1579,7 +1579,7 @@ static int fimc_release(struct file *filp)
 	struct fimc_ctx *ctx;
 	int ret = 0, i;
 #if (defined(CONFIG_EXYNOS_DEV_PD) && defined(CONFIG_PM_RUNTIME))
-	struct platform_device *pdev = to_platform_device(ctrl->dev);
+	//struct platform_device *pdev = to_platform_device(ctrl->dev);
 #endif
 
 	ctx = &ctrl->out->ctx[ctx_id];

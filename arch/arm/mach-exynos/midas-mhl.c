@@ -118,7 +118,6 @@ static void sii9234_vbus_present(bool on, int value)
 {
 	struct power_supply *psy = power_supply_get_by_name(PSY_CHG_NAME);
 	union power_supply_propval power_value;
-	u8 intval;
 	pr_info("%s: on(%d), vbus type(%d)\n", __func__, on, value);
 
 	if (!psy) {

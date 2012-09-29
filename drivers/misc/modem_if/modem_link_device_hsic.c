@@ -1120,7 +1120,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
 {
 	struct if_usb_devdata *devdata = usb_get_intfdata(intf);
 	struct link_pm_data *pm_data = devdata->usb_ld->link_pm_data;
-	struct device *dev, *hdev;
+	struct device *hdev;
 	struct link_device *ld = &devdata->usb_ld->ld;
 
 	mif_info("\n");

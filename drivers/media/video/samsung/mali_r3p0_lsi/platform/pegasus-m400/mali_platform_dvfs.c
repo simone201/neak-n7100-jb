@@ -304,7 +304,6 @@ mali_bool set_mali_dvfs_current_step(unsigned int step)
 static mali_bool set_mali_dvfs_status(u32 step,mali_bool boostup)
 {
 	u32 validatedStep=step;
-	int err;
 
 #ifdef CONFIG_REGULATOR
 	if (mali_regulator_get_usecount() == 0) {
@@ -423,7 +422,6 @@ static mali_bool mali_dvfs_table_update(void)
 static unsigned int decideNextStatus(unsigned int utilization)
 {
 	static unsigned int level = 0; // 0:stay, 1:up
-	static int mali_dvfs_clk = 0;
 
 	if (mali_runtime_resumed >= 0) {
 		level = mali_runtime_resumed;

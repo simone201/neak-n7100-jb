@@ -84,7 +84,6 @@ static ssize_t hdmi_set_audio_read(struct device *dev,
 static ssize_t hdmi_set_audio_store(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t size)
 {
-	char *after;
 	bool value = !strncmp(buf, "1", 1) ? true : false;
 
 	printk(KERN_ERR "[HDMI] Change AUDIO PATH: %d\n", (int)value);
@@ -283,7 +282,6 @@ static int __devinit s5p_tvout_probe(struct platform_device *pdev)
 {
 #if defined(CONFIG_S5P_MEM_CMA)
 	struct cma_info mem_info;
-	int ret;
 #elif defined(CONFIG_S5P_MEM_BOOTMEM)
 	int mdev_id;
 #endif

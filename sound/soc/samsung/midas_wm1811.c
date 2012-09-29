@@ -1407,7 +1407,6 @@ static struct snd_soc_dai_link midas_dai[] = {
 static int midas_card_suspend_pre(struct snd_soc_card *card)
 {
 	struct snd_soc_codec *codec = card->rtd->codec;
-	struct wm8994_priv *wm8994 = snd_soc_codec_get_drvdata(codec);
 
 #ifdef CONFIG_SEC_DEV_JACK
 	snd_soc_dapm_disable_pin(&codec->dapm, "AIF1CLK");
@@ -1466,7 +1465,6 @@ static int midas_card_suspend_post(struct snd_soc_card *card)
 
 static int midas_card_resume_pre(struct snd_soc_card *card)
 {
-	struct snd_soc_codec *codec = card->rtd->codec;
 	struct snd_soc_dai *aif1_dai = card->rtd[0].codec_dai;
 	int ret;
 
@@ -1498,7 +1496,6 @@ static int midas_card_resume_pre(struct snd_soc_card *card)
 static int midas_card_resume_post(struct snd_soc_card *card)
 {
 	struct snd_soc_codec *codec = card->rtd->codec;
-	struct wm8994_priv *wm8994 = snd_soc_codec_get_drvdata(codec);
 	int reg = 0;
 
 	/* workaround for jack detection

@@ -127,7 +127,6 @@ static mali_physical_memory_allocation_result os_allocator_allocate(void* ctx, m
 	allocation = _mali_osk_malloc(sizeof(os_allocation));
 	if (NULL != allocation)
 	{
-		u32 os_mem_max_usage = info->num_pages_max * _MALI_OSK_CPU_PAGE_SIZE;
 		allocation->offset_start = *offset;
 		allocation->num_pages = ((left + _MALI_OSK_CPU_PAGE_SIZE - 1) & ~(_MALI_OSK_CPU_PAGE_SIZE - 1)) >> _MALI_OSK_CPU_PAGE_ORDER;
 		MALI_DEBUG_PRINT(6, ("Allocating page array of size %d bytes\n", allocation->num_pages * sizeof(struct page*)));
