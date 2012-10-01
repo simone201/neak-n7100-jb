@@ -5110,41 +5110,7 @@ int net_os_set_dtim_skip(struct net_device *dev, int val)
 #ifdef PKT_FILTER_SUPPORT
 int net_os_rxfilter_add_remove(struct net_device *dev, int add_remove, int num)
 {
-#ifndef GAN_LITE_NAT_KEEPALIVE_FILTER
-	dhd_info_t *dhd = *(dhd_info_t **)netdev_priv(dev);
-	char *filterp = NULL;
-	int ret = 0;
-
-	if (!dhd || (num == DHD_UNICAST_FILTER_NUM) ||
-	    (num == DHD_MDNS_FILTER_NUM))
-		return ret;
-	if (num >= dhd->pub.pktfilter_count)
-		return -EINVAL;
-	if (add_remove) {
-		switch (num) {
-		case DHD_BROADCAST_FILTER_NUM:
-			filterp = "101 0 0 0 0xFFFFFFFFFFFF 0xFFFFFFFFFFFF";
-			break;
-		case DHD_MULTICAST4_FILTER_NUM:
-			filterp = "102 0 0 0 0xFFFFFF 0x01005E";
-			break;
-		case DHD_MULTICAST6_FILTER_NUM:
-#if defined(BLOCK_IPV6_PACKET)
-/* customer want to use NO IPV6 packets only */
-			return ret;
-#endif
-			filterp = "103 0 0 0 0xFFFF 0x3333";
-			break;
-		default:
-			return -EINVAL;
-		}
-	}
-	dhd->pub.pktfilter[num] = filterp;
-	dhd_pktfilter_offload_set(&dhd->pub, dhd->pub.pktfilter[num]);
-	return ret;
-#else
 	return 0;
-#endif /* GAN_LITE_NAT_KEEPALIVE_FILTER */
 }
 
 int net_os_enable_packet_filter(struct net_device *dev, int val)
