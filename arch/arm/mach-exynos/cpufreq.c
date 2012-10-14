@@ -871,10 +871,10 @@ ssize_t store_UV_mV_table(struct cpufreq_policy *policy,
 															&u[7], &u[8], &u[9], &u[10], &u[11], &u[12], &u[13], &u[14], &u[15]);
 	if(ret != 16) {
 		ret = sscanf(buf, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", &u[0], &u[1], &u[2], &u[3], &u[4], &u[5], &u[6], 
-															&u[7], &u[8], &u[9], &u[10], &u[11], &u[12], &[13], &u[14]);
+															&u[7], &u[8], &u[9], &u[10], &u[11], &u[12], &u[13], &u[14]);
 		if(ret != 15) {
 			ret = sscanf(buf, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d", &u[0], &u[1], &u[2], &u[3], &u[4], &u[5], &u[6], 
-															&u[7], &u[8], &u[9], &u[10], &u[11], &u[12], &[13]);
+															&u[7], &u[8], &u[9], &u[10], &u[11], &u[12], &u[13]);
 			if( ret != 14)
 				return -EINVAL;
 		}
