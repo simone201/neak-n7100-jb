@@ -1,10 +1,10 @@
 ui_print(" ");
-ui_print("* Welcome to NEAK S3 Kernel! *");
+ui_print("* Welcome to NEAK Note2 Kernel! *");
 ui_print(" ");
 show_progress(0.100000, 0);
 show_progress(0.100000, 40);
 
-ui_print("* Flashing NEAK S3 kernel *");
+ui_print("* Flashing NEAK Note2 kernel *");
 
 assert(package_extract_file("boot.img", "/tmp/boot.img"),
 show_progress(0.100000, 70);
