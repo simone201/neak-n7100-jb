@@ -3,5 +3,10 @@
 #
 ro.secure=1
 ro.allow.mock.location=0
-ro.debuggable=0
-persist.sys.usb.config=mtp
+ro.debuggable=1
+persist.sys.usb.config=mtp,adb
+
+# For NEAK OTA Updater
+ro.kernel.id=Kernel Version-0.1
+# For NEAK Configurator
+ro.neak.version=0.1x
