@@ -732,4 +732,10 @@ config SLP_PROCESS_MON
 	  Providing monitoring important processes. Users can register the process
 	  with sysfs.
 
+config TOUCHBOOST_CONTROL
+    bool "Support for TouchBoost Control"
+    default y
+    help
+      Say Y here to enable TouchBoost Control
+
 endif # MISC_DEVICES

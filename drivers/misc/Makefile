@@ -85,3 +85,6 @@ obj-$(CONFIG_MACH_M0_CTC)   += cw_tty.o
 
 # Secure OS Mobicore Interface
 obj-$(CONFIG_MOBICORE_SUPPORT)  += tzic.o
+
+# TouchBooster Control
+obj-$(CONFIG_TOUCHBOOST_CONTROL)  += touch_boost_control.o
