@@ -20,7 +20,7 @@ KERNEL_PATH="/home/simone/neak-n7100"
 #TOOLCHAIN="/home/simone/arm-2009q3/bin/arm-none-linux-gnueabi-"
 TOOLCHAIN="/home/simone/android-toolchain-eabi-4.7/bin/arm-eabi-"
 #TOOLCHAIN="/home/simone/android/system/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-"
-ROOTFS_PATH="/home/simone/neak-n7100/ramdisk-aosp"
+ROOTFS_PATH="/home/simone/neak-n7100/ramdisk-samsung"
 
 export KBUILD_BUILD_VERSION="N.E.A.K-Note2-0.1x"
 export KERNELDIR=$KERNEL_PATH
