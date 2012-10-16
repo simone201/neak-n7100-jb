@@ -7,11 +7,7 @@
 # ccflags-y := -DDEBUG
 # asflags-y := -DDEBUG
 
-<<<<<<< HEAD
-KBUILD_AFLAGS	:=$(KBUILD_AFLAGS:-msoft-float=-Wa,-mfpu=neon)
-=======
 KBUILD_AFLAGS	:=$(KBUILD_AFLAGS:-mhard-float=-Wa,-mfpu=neon)
->>>>>>> 196b2a6... vfp: Use hard-float and neon libraries instead of vfp ones
 LDFLAGS		+=--no-warn-mismatch
 
 obj-y			+= vfp.o
