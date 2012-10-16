@@ -16,7 +16,7 @@
 
 #define DEBUG
 /* #define VERBOSE_DEBUG */
-/*#define SEC_TSP_DEBUG*/
+#define SEC_TSP_DEBUG
 
 /* #define FORCE_FW_FLASH */
 /* #define FORCE_FW_PASS */
@@ -169,7 +169,7 @@ static struct device *bus_dev;
 
 unsigned int boost_freq = 700000;
 
-int touch_is_pressed = 0;
+int touch_is_pressed;
 
 #define ISC_DL_MODE	1
 
