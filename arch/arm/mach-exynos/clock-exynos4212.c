@@ -983,6 +983,10 @@ static struct vpll_div_data vpll_div_4212[] = {
 	{350000000, 3, 175, 2, 0, 0, 0, 0},
 	{440000000, 3, 110, 1, 0, 0, 0, 0},
 	{533000000, 3, 133, 1, 16384, 0, 0, 0},
+	{600000000, 2, 100, 1, 16384, 0, 0, 0},
+	{640000000, 3, 160, 1, 16384, 0, 0, 0},
+	{666000000, 2, 111, 1, 16384, 0, 0, 0},
+	{700000000, 3, 175, 1, 16384, 0, 0, 0},
 };
 
 static unsigned long exynos4212_vpll_get_rate(struct clk *clk)
@@ -1018,6 +1022,7 @@ static int exynos4212_vpll_set_rate(struct clk *clk, unsigned long rate)
 	}
 
 	if (i == ARRAY_SIZE(vpll_div_4212)) {
+		printk(KERN_ERR "%s: Clock Frequency to set = %ul \n", __func__, rate);
 		printk(KERN_ERR "%s: Invalid Clock VPLL Frequency\n",
 				__func__);
 		return -EINVAL;
