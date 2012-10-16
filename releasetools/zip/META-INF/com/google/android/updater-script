@@ -8,7 +8,7 @@ ui_print("* Flashing NEAK Note2 kernel *");
 
 assert(package_extract_file("boot.img", "/tmp/boot.img"),
 show_progress(0.100000, 70);
-write_raw_image("/tmp/boot.img", "/dev/block/mmcblk0p5"),
+write_raw_image("/tmp/boot.img", "/dev/block/mmcblk0p8"),
 show_progress(0.100000, 90);
 delete("/tmp/boot.img"));
 
