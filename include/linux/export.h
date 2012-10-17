@@ -16,11 +16,11 @@
 #define MODULE_SYMBOL_PREFIX ""
 #endif
 
-struct kernel_symbol
-{
-	unsigned long value;
-	const char *name;
-};
+//struct kernel_symbol
+//{
+//	unsigned long value;
+//	const char *name;
+//};
 
 #ifdef MODULE
 extern struct module __this_module;
