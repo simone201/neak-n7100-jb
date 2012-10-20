@@ -281,14 +281,7 @@ static void assign_next_awake_culprit_locked(void)
 	}
 	if (candidate_lock) {
 		// Account PREVENTING_SUSPEND time before assigning new culprit
-		if (wake_lock_active(&main_wake_lock)) {
-			// Update times but keep all active locks as *not* PREVENTING_SUSPEND, "main" is active
-			update_sleep_wait_stats_locked(1);
-		} else {
-			// Update times and set all active locks as PREVENTING_SUSPEND, "main" is not active and the device
-			// could be sleeping
-			update_sleep_wait_stats_locked(0);
-		}
+		update_sleep_wait_stats_locked(0);
 		// Set now as the last_time of the culprit
 		candidate_lock->exclusive_stat.last_time = ktime_get();
 		// Assign new culprit
@@ -540,7 +533,6 @@ void wake_lock_destroy(struct wake_lock *lock)
 		pr_info("wake_lock_destroy name=%s\n", lock->name);
 	spin_lock_irqsave(&list_lock, irqflags);
 	lock->flags &= ~WAKE_LOCK_INITIALIZED;
-	lock->flags &= ~WAKE_LOCK_ACTIVE;
 	list_del(&lock->link);
 #ifdef CONFIG_WAKELOCK_STAT
 	if (lock->flags & WAKE_LOCK_AWAKE_CULPRIT) {
