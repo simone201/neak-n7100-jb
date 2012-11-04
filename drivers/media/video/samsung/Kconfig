@@ -114,7 +114,7 @@ config VIDEO_SAMSUNG_MEMSIZE_JPEG
 	depends on VIDEO_JPEG || (VIDEO_JPEG_V2X && (CPU_EXYNOS4212 || CPU_EXYNOS4412))
 	default "40960"
 
-config VIDEO_SAMSUNG_MEMbSIZE_TVOUT
+config VIDEO_SAMSUNG_MEMSIZE_TVOUT
 	int "Memory size in kbytes for TVOUT"
 	depends on VIDEO_TVOUT
 	default "16384"
