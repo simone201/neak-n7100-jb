@@ -34,6 +34,11 @@
 #undef CONFIG_PM_RUNTIME
 #endif
 
+#ifdef CONFIG_GPU_CLOCK_CONTROL
+#include <../common/gpu_clock_control.h>
+#include <../common/gpu_voltage_control.h>
+#endif
+
 #if MALI_PMM_RUNTIME_JOB_CONTROL_ON
 extern void set_mali_parent_power_domain(struct platform_device* dev);
 #endif /* MALI_PMM_RUNTIME_JOB_CONTROL_ON */
@@ -225,6 +230,11 @@ int _mali_dev_platform_register(void)
 
 #ifdef CONFIG_PM_RUNTIME
 	set_mali_parent_power_domain((void *)&mali_gpu_device);
+#endif
+
+#ifdef CONFIG_GPU_CLOCK_CONTROL
+	gpu_clock_control_start();
+	gpu_voltage_control_start();
 #endif
 
 #ifdef CONFIG_PM_RUNTIME

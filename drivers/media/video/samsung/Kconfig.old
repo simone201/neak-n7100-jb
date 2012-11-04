@@ -17,8 +17,8 @@ if CPU_EXYNOS4210 || CPU_EXYNOS4212 || CPU_EXYNOS4412
 	source "drivers/media/video/samsung/fimc/Kconfig"
 	source "drivers/media/video/samsung/tvout/Kconfig"
 	source "drivers/media/video/samsung/mfc5x/Kconfig"
-	source "drivers/media/video/samsung/ump_r3p0_lsi/Kconfig"
-	source "drivers/media/video/samsung/mali_r3p0_lsi/Kconfig"
+	source "drivers/media/video/samsung/mali/Kconfig"
+	source "drivers/media/video/samsung/ump/Kconfig"
 endif
 if (CPU_EXYNOS4210 || CPU_EXYNOS4212 || CPU_EXYNOS4412) && !SLP
 	source "drivers/media/video/samsung/mali/Kconfig"
@@ -114,7 +114,7 @@ config VIDEO_SAMSUNG_MEMSIZE_JPEG
 	depends on VIDEO_JPEG || (VIDEO_JPEG_V2X && (CPU_EXYNOS4212 || CPU_EXYNOS4412))
 	default "40960"
 
-config VIDEO_SAMSUNG_MEMbSIZE_TVOUT
+config VIDEO_SAMSUNG_MEMSIZE_TVOUT
 	int "Memory size in kbytes for TVOUT"
 	depends on VIDEO_TVOUT
 	default "16384"

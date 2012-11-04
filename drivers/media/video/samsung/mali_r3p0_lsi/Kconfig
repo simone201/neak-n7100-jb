@@ -39,7 +39,7 @@ int "Dedicated Memory Size"
    ---help---
        This value is dedicated memory size of Mali GPU(unit is MByte).
 	   
-config MALI_R3P1_LSI
+config MALI_R3P0_LSI
 	bool "Uses the R3P1 as a kernel module"
 	depends on VIDEO_MALI400MP
 	default n
@@ -61,3 +61,10 @@ config VIDEO_MALI400MP_DVFS
 	default y
 	help
 	  This enables Mali driver DVFS.
+
+config GPU_CLOCK_CONTROL
+	bool "Enable GPU clock control and voltage interface"
+	depends on VIDEO_MALI400MP
+	default y
+	help
+	  This enables a sysfs interface to control gpu clock and voltage.

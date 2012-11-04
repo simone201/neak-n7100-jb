@@ -33,7 +33,7 @@ endif
 DEFINES += -DMALI_USE_UNIFIED_MEMORY_PROVIDER
 DEFINES += -DUSING_MEMORY=$(USING_MEMORY)
 DEFINES += -DUMP_MEM_SIZE=$(UMP_MEM_SIZE)
-DEFINES += -DMALI_STATE_TRACKING=1
+DEFINES += -DMALI_STATE_TRACKING=0
 
 UDD_FILE_PREFIX := drivers/media/video/samsung/ump_r3p0_lsi/
 KBUILDROOT =
@@ -52,15 +52,15 @@ INCLUDES += \
 		-I$(UDD_FILE_PREFIX)linux\
 		-I$(UDD_FILE_PREFIX)include\
 		-I$(UDD_FILE_PREFIX)linux/license/gpl/\
-		-I$(UDD_FILE_PREFIX)../mali/common\
-		-I$(UDD_FILE_PREFIX)../mali/linux
+		-I$(UDD_FILE_PREFIX)../mali_r3p0_lsi/common\
+		-I$(UDD_FILE_PREFIX)../mali_r3p0_lsi/linux
 
 OSKFILES+=\
-		$(KBUILDROOT)../mali/linux/mali_osk_atomics.o \
-		$(KBUILDROOT)../mali/linux/mali_osk_locks.o \
-		$(KBUILDROOT)../mali/linux/mali_osk_math.o \
-		$(KBUILDROOT)../mali/linux/mali_osk_memory.o \
-		$(KBUILDROOT)../mali/linux/mali_osk_misc.o
+		$(KBUILDROOT)../mali_r3p0_lsi/linux/mali_osk_atomics.o \
+		$(KBUILDROOT)../mali_r3p0_lsi/linux/mali_osk_locks.o \
+		$(KBUILDROOT)../mali_r3p0_lsi/linux/mali_osk_math.o \
+		$(KBUILDROOT)../mali_r3p0_lsi/linux/mali_osk_memory.o \
+		$(KBUILDROOT)../mali_r3p0_lsi/linux/mali_osk_misc.o
 
 ump-y := \
 		$(KBUILDROOT)linux/ump_kernel_linux.o \

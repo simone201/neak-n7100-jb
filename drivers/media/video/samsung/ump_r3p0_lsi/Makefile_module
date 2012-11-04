@@ -9,7 +9,7 @@
 #
 
 UMP_FILE_PREFIX =
-UDD_FILE_PREFIX = ../mali/
+UDD_FILE_PREFIX = ../mali_r3p0_lsi/
 
 ifneq ($(KBUILD_EXTMOD),)
 include $(KBUILD_EXTMOD)/Makefile.common
@@ -32,7 +32,7 @@ endif
 ifneq ($(KERNELRELEASE),)
 # Inside the kernel build system
 
-EXTRA_CFLAGS += -I$(KBUILD_EXTMOD) -I$(KBUILD_EXTMOD)/common -I$(KBUILD_EXTMOD)/linux -I$(KBUILD_EXTMOD)/../mali/common -I$(KBUILD_EXTMOD)/../mali/linux -I$(KBUILD_EXTMOD)/../../ump/include/ump
+EXTRA_CFLAGS += -I$(KBUILD_EXTMOD) -I$(KBUILD_EXTMOD)/common -I$(KBUILD_EXTMOD)/linux -I$(KBUILD_EXTMOD)/../mali_r3p0_lsi/common -I$(KBUILD_EXTMOD)/../mali_r3p0_lsi/linux -I$(KBUILD_EXTMOD)/../../ump_r3p0_lsi/include/ump
 
 # For customer releases the Linux Device Drivers will be provided as ARM proprietary and GPL releases:
 # The ARM proprietary product will only include the license/proprietary directory
@@ -114,6 +114,6 @@ kernelrelease:
 
 clean:
 	$(MAKE) ARCH=$(ARCH) -C $(KDIR) M=$(CURDIR) clean
-	$(MAKE) ARCH=$(ARCH) -C $(KDIR) M=$(CURDIR)/../mali clean
+	$(MAKE) ARCH=$(ARCH) -C $(KDIR) M=$(CURDIR)/../mali_r3p0_lsi clean
 
 endif
