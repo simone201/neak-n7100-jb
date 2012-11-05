@@ -3,7 +3,7 @@
  *
  *  Copyright (C) 2011 Gokhan Moral
  *
- * 	GT-I9300 support by simone201
+ * 	GT-I9300/N7100 support by simone201
  * 
  *  This program is free software; you can redistribute  it and/or modify it
  *  under  the terms of the GNU General Public License as published by the
