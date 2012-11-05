@@ -5,7 +5,7 @@ cd /
 /sbin/busybox mount -t sysfs sysfs /sys
 
 /sbin/busybox mkdir -p /dev/block
-/sbin/busybox mknod /dev/block/mmcblk0p13 b 179 9
+/sbin/busybox mknod /dev/block/mmcblk0p13 b 179 13
 /sbin/busybox mount -t ext4 /dev/block/mmcblk0p13 /system
 
 if [ ! -d /system/lib/modules ]; then
@@ -13,7 +13,10 @@ if [ ! -d /system/lib/modules ]; then
 	/sbin/busybox mkdir /system/lib/modules
 fi;
 
-/sbin/busybox cp -f /lib/modules/* /system/lib/modules
+# Let's copy the needed modules only
+/sbin/busybox cp -f /lib/modules/dhd.ko /system/lib/modules/dhd.ko
+/sbin/busybox cp -f /lib/modules/btlock.ko /system/lib/modules/btlock.ko
+/sbin/busybox cp -f /lib/modules/scsi_wait_scan.ko /system/lib/modules/scsi_wait_scan.ko
 
 /sbin/busybox umount /system
 exec /sbin/init.aosp
