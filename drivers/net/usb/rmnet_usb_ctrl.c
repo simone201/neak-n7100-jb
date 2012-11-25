@@ -443,23 +443,6 @@ static int usb_anchor_len(struct usb_anchor *anchor)
 	return len;
 }
 
-static int usb_anchor_len(struct usb_anchor *anchor)
-{
-	unsigned long flags;
-	struct urb *urb;
-	int len = 0;
-
-	spin_lock_irqsave(&anchor->lock, flags);
-	list_for_each_entry(urb, &anchor->urb_list, anchor_list) {
-		len++;
-	}
-	spin_unlock_irqrestore(&anchor->lock, flags);
-
-	pr_debug("%s:%d", __func__, len);
-
-	return len;
-}
-
 static int rmnet_usb_ctrl_write(struct rmnet_ctrl_dev *dev, char *buf,
 		size_t size)
 {
