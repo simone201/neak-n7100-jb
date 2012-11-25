@@ -31,9 +31,15 @@ ifdef CONFIG_MACH_T0
 fw-shipped-$(CONFIG_VIDEO_S5C73M3) += SlimISP_ZK.bin \
 				      SlimISP_GK.bin
 else
-ifdef CONFIG_MACH_BAFFIN
+ifdef CONFIG_MACH_M3_TMO
 fw-shipped-$(CONFIG_VIDEO_S5C73M3) += SlimISP_ZK.bin \
 				      SlimISP_GK.bin
+else
+ifdef CONFIG_MACH_BAFFIN
+fw-shipped-$(CONFIG_VIDEO_S5C73M3) += SlimISP_ZK.bin \
+				      SlimISP_GK.bin \
+				      SlimISP_BK.bin \
+				      SlimISP_GM.bin
 else
 ifdef CONFIG_MACH_GRANDE
 fw-shipped-$(CONFIG_VIDEO_S5C73M3) += SlimISP_GJ.bin
@@ -43,6 +49,7 @@ fw-shipped-$(CONFIG_VIDEO_S5C73M3) += SlimISP_GJ.bin
 else
 fw-shipped-$(CONFIG_VIDEO_S5C73M3) += SlimISP_ZD.bin \
 				      SlimISP_GD.bin
+endif
 endif
 endif
 endif
