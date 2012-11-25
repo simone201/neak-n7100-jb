@@ -126,6 +126,9 @@ struct mdm_hsic_pm_data {
 /* indicate wakeup from lpa state */
 bool lpa_handling;
 
+/* indicate receive hallo_packet_rx */
+int hello_packet_rx;
+
 #ifdef EHCI_REG_DUMP
 struct dump_ehci_regs {
 	unsigned caps_hc_capbase;
@@ -346,6 +349,8 @@ void request_autopm_lock(int status)
 			pm_runtime_allow(&pm_data->udev->dev);
 			pm_runtime_put(&pm_data->udev->dev);
 		}
+		/* initailize hello_packet_rx */
+		hello_packet_rx = 0;
 	}
 }
 
@@ -545,6 +550,9 @@ int register_udev_to_pm_dev(const char *name, struct usb_device *udev)
 		pm_data->udev = udev;
 		atomic_set(&pm_data->pmlock_cnt, 0);
 		usb_disable_autosuspend(udev);
+#ifdef CONFIG_SIM_DETECT
+		get_sim_state_at_boot();
+#endif
 	} else if (pm_data->udev && pm_data->udev != udev) {
 		pr_err("%s:udev mismatching: pm_data->udev(0x%p), udev(0x%p)\n",
 		__func__, pm_data->udev, udev);
