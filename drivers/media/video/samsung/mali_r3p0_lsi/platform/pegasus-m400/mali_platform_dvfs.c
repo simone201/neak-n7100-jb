@@ -300,6 +300,7 @@ static unsigned int decideNextStatus(unsigned int utilization)
 	if (mali_runtime_resumed >= 0) {
 		level = mali_runtime_resumed;
 		mali_runtime_resumed = -1;
+		return level;
 	}
 
 	if (mali_dvfs_threshold[maliDvfsStatus.currentStep].upthreshold
@@ -467,6 +468,7 @@ int mali_dvfs_bottom_lock_push(int lock_step)
 int mali_dvfs_bottom_lock_pop(void)
 {
 	int prev_status = _mali_osk_atomic_read(&bottomlock_status);
+
 	if (prev_status <= 0) {
 		MALI_PRINT(("gpu bottom lock status is not valid for pop\n"));
 		return -1;
