@@ -32,6 +32,7 @@ echo $(date) START of post-init.sh
   done
   
 # Miscellaneous tweaks
+  echo "12288" > /proc/sys/vm/min_free_kbytes
   echo "1500" > /proc/sys/vm/dirty_writeback_centisecs
   echo "200" > /proc/sys/vm/dirty_expire_centisecs
   echo "0" > /proc/sys/vm/swappiness
@@ -55,6 +56,8 @@ echo $(date) START of post-init.sh
   echo "512" > /sys/devices/virtual/bdi/179:0/read_ahead_kb
   echo "512" > /sys/devices/virtual/bdi/179:16/read_ahead_kb
   echo "512" > /sys/devices/virtual/bdi/default/read_ahead_kb
+  echo "256" > /sys/block/mmcblk0/bdi/read_ahead_kb
+  echo "256" > /sys/block/mmcblk1/bdi/read_ahead_kb
 
 # TCP tweaks
   echo "0" > /proc/sys/net/ipv4/tcp_timestamps;
@@ -71,9 +74,6 @@ echo $(date) START of post-init.sh
   echo "256960" > /proc/sys/net/core/wmem_default;
   echo "4096 16384 404480" > /proc/sys/net/ipv4/tcp_wmem;
   echo "4096 87380 404480" > /proc/sys/net/ipv4/tcp_rmem;
-
-# Renice kswapd0 - kernel thread responsible for managing the memory
-/sbin/busybox renice 6 `/sbin/busybox pidof kswapd0`
 
 # New scheduler tweaks + readahead tweaks (thx to Pikachu01)
 for i in $MMC;
@@ -104,6 +104,7 @@ echo "10" > /proc/sys/fs/lease-break-time;
   echo "0" > /sys/module/alarm/parameters/debug_mask
   echo "0" > /sys/module/alarm_dev/parameters/debug_mask
   echo "0" > /sys/module/binder/parameters/debug_mask
+  echo "0" > /sys/module/lowmemorykiller/parameters/debug_level
 
 # Doing some cleanup before init.d support & neak options
     /sbin/busybox sh /sbin/near/cleanup.sh
