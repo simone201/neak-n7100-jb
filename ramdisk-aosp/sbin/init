@@ -13,10 +13,5 @@ if [ ! -d /system/lib/modules ]; then
 	/sbin/busybox mkdir /system/lib/modules
 fi;
 
-# Let's copy the needed modules only
-/sbin/busybox cp -f /lib/modules/dhd.ko /system/lib/modules/dhd.ko
-/sbin/busybox cp -f /lib/modules/btlock.ko /system/lib/modules/btlock.ko
-/sbin/busybox cp -f /lib/modules/scsi_wait_scan.ko /system/lib/modules/scsi_wait_scan.ko
-
 /sbin/busybox umount /system
 exec /sbin/init.aosp
