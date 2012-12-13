@@ -106,4 +106,4 @@ out2:
 out1:
 	return ret;
 }
-device_initcall_sync(exynos4_asv_init);
+subsys_initcall_sync(exynos4_asv_init);
