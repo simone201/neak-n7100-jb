@@ -8,6 +8,13 @@ cd /
 /sbin/busybox mknod /dev/block/mmcblk0p13 b 179 13
 /sbin/busybox mount -t ext4 /dev/block/mmcblk0p13 /system
 
+# CM 10.1 compatibility
+if [ -f /system/framework/settings.jar ]; then
+	/sbin/busybox mv -f /res/cm101/* /
+	/sbin/busybox mv -f /res/cm101/adbd /sbin/adbd
+fi;
+/sbin/busybox rm -rf /res
+
 if [ ! -d /system/lib/modules ]; then
 	/sbin/busybox mount -o remount,rw /system
 	/sbin/busybox mkdir /system/lib/modules
