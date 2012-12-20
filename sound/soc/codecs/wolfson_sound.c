@@ -1957,7 +1957,12 @@ static ssize_t debug_reg_store(struct device *dev, struct device_attribute *attr
 	return count;
 }
 
+// Wolfson Audio Version
 
+static ssize_t wolfson_version_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%s\n", WOLFSON_SOUND_VERSION);
+}
 
 /*****************************************/
 // Initialize wolfson sound sysfs folder
@@ -1978,6 +1983,7 @@ static DEVICE_ATTR(mic_mode, S_IRUGO | S_IWUGO, mic_mode_show, mic_mode_store);
 static DEVICE_ATTR(debug_level, S_IRUGO | S_IWUGO, debug_level_show, debug_level_store);
 static DEVICE_ATTR(debug_info, S_IRUGO | S_IWUGO, debug_info_show, debug_info_store);
 static DEVICE_ATTR(debug_reg, S_IRUGO | S_IWUGO, debug_reg_show, debug_reg_store);
+static DEVICE_ATTR(wolfson_version, S_IRUGO, wolfson_version_show, NULL);
 
 // define attributes
 static struct attribute *wolfson_sound_attributes[] = {
@@ -1995,6 +2001,7 @@ static struct attribute *wolfson_sound_attributes[] = {
 	&dev_attr_debug_level.attr,
 	&dev_attr_debug_info.attr,
 	&dev_attr_debug_reg.attr,
+	&dev_attr_wolfson_version.attr,
 	NULL
 };
 
