@@ -3,6 +3,9 @@
  *
  * Version 1.2
  *
+ * credits: Supercurio for ideas and partially code from his Voodoo Sound implementation.
+ * 			Gokhanmoral for further modifications to the original code.
+ * 
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
  * may be copied, distributed, and modified under those terms.
@@ -29,7 +32,7 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 
 // Wolfson sound general
 #define WOLFSON_SOUND_DEFAULT 	0
-#define WOLFSON_SOUND_VERSION 	"1.2"
+#define WOLFSON_SOUND_VERSION 	"1.2.1"
 
 // Debug mode
 #define DEBUG_DEFAULT 		1
@@ -107,6 +110,7 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 #define MIC_MODE_DEFAULT 	0
 #define MIC_MODE_CONCERT 	1
 #define MIC_MODE_NOISY 		2
+#define MIC_MODE_LIGHT      3
 
 // Microphone control
 #define MIC_DEFAULT_LEFT_VALUE		267
@@ -135,6 +139,15 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 #define MIC_NOISY_DRC1_2		2117
 #define MIC_NOISY_DRC1_3		153
 #define MIC_NOISY_DRC1_4		364
+
+#define MIC_LIGHT_LEFT_VALUE 268
+#define MIC_LIGHT_RIGHT_VALUE 268
+#define MIC_LIGHT_INPUT_MIXER_3 32
+#define MIC_LIGHT_INPUT_MIXER_4 32
+#define MIC_LIGHT_DRC1_1 156
+#define MIC_LIGHT_DRC1_2 2116
+#define MIC_LIGHT_DRC1_3 161
+#define MIC_LIGHT_DRC1_4 462
 
 // General
 #define ON 	1
