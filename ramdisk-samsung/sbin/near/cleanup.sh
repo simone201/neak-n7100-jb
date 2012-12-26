@@ -21,4 +21,7 @@ if [ ! -d /system/etc/init.d ]; then
 	/sbin/busybox mkdir /system/etc/init.d
 fi;
 
+# Setting the right script permissions
+/sbin/busybox chmod 755 /system/etc/init.d/*
+
 /sbin/busybox mount -o remount,ro /system
