@@ -1,7 +1,7 @@
 /*
- * Author: andip71, 30.11.2012
+ * Author: andip71, 31.12.2012
  *
- * Version 1.2
+ * Version 1.4.2
  *
  * credits: Supercurio for ideas and partially code from his Voodoo Sound implementation.
  * 			Gokhanmoral for further modifications to the original code.
@@ -32,7 +32,7 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 
 // Wolfson sound general
 #define WOLFSON_SOUND_DEFAULT 	0
-#define WOLFSON_SOUND_VERSION 	"1.2.1"
+#define WOLFSON_SOUND_VERSION 	"1.4.2"
 
 // Debug mode
 #define DEBUG_DEFAULT 		1
@@ -95,7 +95,7 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 #define FLL_LOOP_GAIN_TUNED	5
 
 // headphone levels
-#define HEADPHONE_DEFAULT 	45
+#define HEADPHONE_DEFAULT 	50
 
 #define HEADPHONE_MAX 		63
 #define HEADPHONE_MIN 		45

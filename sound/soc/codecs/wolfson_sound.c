@@ -1,7 +1,7 @@
 /*
- * Author: andip71, 30.11.2012
+ * Author: andip71, 31.12.2012
  *
- * Version 1.2
+ * Version 1.4.2
  *
  * credits: Supercurio for ideas and partially code from his Voodoo
  * 	    sound implementation,
@@ -88,6 +88,7 @@ static bool check_for_call(unsigned int val);
 static bool check_for_socket(unsigned int val);
 static bool check_for_headphone(void);
 static bool check_for_fmradio(void);
+static void handler_headphone_detection(void);
 
 static void set_headphone(void);
 static unsigned int get_headphone_l(unsigned int val);
@@ -318,17 +319,7 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int val)
 	// ( for un-plug detection see above, this is covered by checking a register)
 	if (is_socket && !is_headphone)
 	{
-		if (check_for_headphone())
-		{
-			is_headphone = true;
-
-			if (debug(DEBUG_NORMAL))
-				printk("Wolfson-Sound: Headphone or headset found\n");
-
-			// Handler: switch equalizer and set speaker volume (for privacy mode)
-			set_eq();
-			set_speaker();
-		}
+		handler_headphone_detection();
 	}
 
 	// FM radio detection
@@ -562,6 +553,20 @@ static bool check_for_fmradio(void)
 	return false;
 }
 
+static void handler_headphone_detection(void)
+{
+	if (check_for_headphone())
+	{
+		is_headphone = true;
+		
+		if (debug(DEBUG_NORMAL))
+			printk("wolfson-sound: Headphone or headset found\n");
+
+		// Handler: switch equalizer and set speaker volume (for privacy mode)
+		set_eq();
+		set_speaker();
+	}
+}
 
 static bool debug (int level)
 {
@@ -1318,13 +1323,22 @@ static ssize_t wolfson_sound_store(struct device *dev, struct device_attribute *
 	// store if valid data and only if status has changed, reset all values
 	if (((val == OFF) || (val == ON))&& (val != wolfson_sound))
 	{
+		// print debug info
+		if (debug(DEBUG_NORMAL))
+			printk("wolfson-sound: status %d\n", wolfson_sound);
+
+		// Initialize Wolfson-Sound
 		wolfson_sound = val;
 		reset_wolfson_sound();
-	}
 
-	// print debug info
-	if (debug(DEBUG_NORMAL))
-		printk("Wolfson-Sound: status %d\n", wolfson_sound);
+		// If Wolfson-Sound was switched on, set correct status for
+		// headphone and fm_radio (assuming there is never a call when switching Sound on)
+		if (wolfson_sound == ON)
+		{
+			handler_headphone_detection();
+			is_fmradio = check_for_fmradio();
+		}
+	}
 
 	return count;
 
