@@ -23,6 +23,7 @@
 #include <sound/jack.h>
 
 #include <linux/miscdevice.h>
+#include <linux/switch.h>
 #include <linux/mfd/wm8994/core.h>
 #include <linux/mfd/wm8994/registers.h>
 #include <linux/mfd/wm8994/pdata.h>
@@ -79,6 +80,8 @@ static bool is_eq;
 
 static unsigned int wm8994_read(struct snd_soc_codec *codec, unsigned int reg);
 static int wm8994_write(struct snd_soc_codec *codec, unsigned int reg, unsigned int value);
+
+extern struct switch_dev android_switch;
 
 static bool debug(int level);
 static bool check_for_call(unsigned int val);
@@ -510,14 +513,7 @@ static bool check_for_headphone(void)
 	// or headset is currently connected
 	// Note: This always shows status delayed after something has been plugged in or
 	// unplugged !!!
-	if(wm8994->micdet[0].jack)
-	{
-		if ((wm8994->micdet[0].jack->status & SND_JACK_HEADPHONE) ||
-		(wm8994->micdet[0].jack->status & SND_JACK_HEADSET))
-			return true;
-	}
-
-	return false;
+	return (switch_get_state(&android_switch) > 0);
 }
 
 
