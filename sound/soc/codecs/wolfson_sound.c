@@ -1,7 +1,7 @@
 /*
- * Author: andip71, 31.12.2012
+ * Author: andip71, 10.01.2012
  *
- * Version 1.4.2
+ * Version 1.4.3
  *
  * credits: Supercurio for ideas and partially code from his Voodoo
  * 	    sound implementation,
