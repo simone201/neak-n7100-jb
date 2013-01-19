@@ -64,6 +64,10 @@ config MACH_M3_JPN_DCM
 	bool "M3 JPN DCM"
 endchoice
 
+config MACH_T0_LTE
+	bool "T0 LTE Target"
+	depends on MACH_T0
+
 choice
 	prompt "T0 Target"
 	depends on MACH_T0 && \
@@ -72,12 +76,15 @@ choice
 
 config MACH_T0_USA_ATT
 	bool "ATT"
+	select MACH_T0_LTE
 
 config MACH_T0_USA_TMO
 	bool "TMO"
+	select MACH_T0_LTE
 
 config MACH_T0_USA_VZW
 	bool "VZW"
+	select MACH_T0_LTE
 
 config MACH_T0_USA_SPR
 	bool "SPR"
