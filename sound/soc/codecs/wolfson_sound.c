@@ -136,14 +136,14 @@ void Wolfson_sound_hook_wm8994_pcm_probe(struct snd_soc_codec *codec_pointer)
 	// Print debug info
 	printk("Wolfson-Sound: codec pointer received\n");
 
-	// Initialize boeffla sound master switch finally
+	// Initialize wolfson sound master switch finally
 	wolfson_sound = WOLFSON_SOUND_DEFAULT;
 
-	// If boeffla sound is enabled during driver start, reset to default configuration	
+	// If wolfson sound is enabled during driver start, reset to default configuration	
 	if (wolfson_sound == ON)
 	{
 		reset_wolfson_sound();
-		printk("Wolfson-sound: boeffla sound enabled during startup\n");
+		printk("Wolfson-sound: wolfson sound enabled during startup\n");
 	}
 
 }
@@ -2082,7 +2082,7 @@ static int wolfson_sound_init(void)
 	debug_level = DEBUG_DEFAULT;
 
 	// The mic mode register default values ore only initialized once when
-	// the driver is loaded (as values get cached once boeffla sound is switched on)
+	// the driver is loaded (as values get cached once wolfson sound is switched on)
 	mic_mode_regcache[0] = MIC_DEFAULT_LEFT_VALUE;
 	mic_mode_regcache[1] = MIC_DEFAULT_RIGHT_VALUE;
 	mic_mode_regcache[2] = MIC_DEFAULT_INPUT_MIXER_3;
@@ -2101,7 +2101,7 @@ static int wolfson_sound_init(void)
 
 static void wolfson_sound_exit(void)
 {
-	// remove boeffla sound control device
+	// remove wolfson sound control device
 	sysfs_remove_group(&wolfson_sound_control_device.this_device->kobj,
                            &wolfson_sound_control_group);
 
