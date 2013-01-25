@@ -1,7 +1,7 @@
 /*
- * Author: andip71, 24.01.2013
+ * Author: andip71, 23.01.2013
  *
- * Version 1.4.6
+ * Version 1.4.5
  *
  * credits: Supercurio for ideas and partially code from his Voodoo
  * 	    sound implementation,
@@ -158,26 +158,31 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int val)
 	if (!wolfson_sound)
 		return val;
 
-	// call detection check at the very beginning to ensure we catch the event
-	// as early as possible (to fix microphone mode implications)
-	if (is_call != check_for_call(val))
-	{
-		is_call = !is_call;
-
-		if (debug(DEBUG_NORMAL))
-			printk("Wolfson-sound: Call detection new status %d\n", is_call);
-
-		// switch equalizer and mic mode
-		set_eq();
-		set_mic_mode();
-	}
-
 	// If the write request of the original driver is for specific registers,
 	// change value to wolfson sound values accordingly as new return value
 	newval = val;
 
 	switch (reg)
 	{
+
+		// call detection
+		case WM8994_AIF2_CONTROL_2:
+		{
+			if (is_call != check_for_call(val))
+			{
+				is_call = !is_call;
+
+				if (debug(DEBUG_NORMAL))
+					printk("Wolfson-Sound: Call detection new status %d\n", is_call);
+
+				// switch equalizer and mic mode
+				set_eq();
+				set_mic_mode();
+			}
+
+			break;
+		}
+
 		// socket connection/disconnection detection (incl. headphone un-plug)
 		// (see headphone detection below for plug-in)
 		case WM1811_JACKDET_CTRL:
