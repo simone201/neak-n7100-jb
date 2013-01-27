@@ -1,7 +1,7 @@
 /*
- * Author: andip71, 25.01.2013
+ * Author: andip71, 27.01.2013
  *
- * Version 1.4.7
+ * Version 1.4.8
  *
  * credits: Supercurio for ideas and partially code from his Voodoo
  * 	    sound implementation,
@@ -63,6 +63,7 @@ static int fll_tuning;
 static int privacy_mode;
 
 static int mic_mode;
+static unsigned int mic_register_cache[9];
 
 static unsigned int debug_register;
 
@@ -114,6 +115,7 @@ static void set_fll_tuning(void);
 static void set_mic_mode(void);
 static unsigned int get_mic_mode(int reg_index);
 static unsigned int get_mic_mode_for_hook(int reg_index, unsigned int value);
+static void update_mic_register_cache(void);
 
 static void reset_wolfson_sound(void);
 
@@ -993,7 +995,7 @@ static unsigned int get_dac_direct_r(unsigned int val)
 
 static void set_dac_oversampling()
 {
-	int val;
+	unsigned int val;
 
 	// read current value of oversampling register
 	val = wm8994_read(codec, WM8994_OVERSAMPLING);
@@ -1023,7 +1025,7 @@ static void set_dac_oversampling()
 
 static void set_fll_tuning(void)
 {
-	int val;
+	unsigned int val;
 
 	// read current value of FLL control register 4 and mask out loop gain value
 	val = wm8994_read(codec, WM8994_FLL1_CONTROL_4);
@@ -1084,28 +1086,10 @@ static void set_mic_mode(void)
 
 static unsigned int get_mic_mode(int reg_index)
 {
-	// Mic mode is default
+	// Mic mode is default, load previously cached values
 	if (mic_mode == MIC_MODE_DEFAULT)
 	{
-		switch(reg_index)
-		{
-			case 1:
-				return MIC_DEFAULT_LEFT_VALUE;
-			case 2:
-				return MIC_DEFAULT_RIGHT_VALUE;
-			case 3:
-				return MIC_DEFAULT_INPUT_MIXER_3;
-			case 4:
-				return MIC_DEFAULT_INPUT_MIXER_4;
-			case 5:
-				return MIC_DEFAULT_DRC1_1;
-			case 6:
-				return MIC_DEFAULT_DRC1_2;
-			case 7:
-				return MIC_DEFAULT_DRC1_3;
-			case 8:
-				return MIC_DEFAULT_DRC1_4;
-		}
+		return mic_register_cache[reg_index];
 	}
 
 	// Mic mode is concert
@@ -1193,6 +1177,21 @@ static unsigned int get_mic_mode_for_hook(int reg_index, unsigned int value)
 		return value;
 
 	return get_mic_mode(reg_index);
+}
+
+
+static void update_mic_register_cache(void)
+{
+	// read current register values that have somehow to do with mic_mode and
+	// cache them to be potentially reused later
+	mic_register_cache[1] = wm8994_read(codec, WM8994_LEFT_LINE_INPUT_1_2_VOLUME);
+	mic_register_cache[2] = wm8994_read(codec, WM8994_RIGHT_LINE_INPUT_1_2_VOLUME);
+	mic_register_cache[3] = wm8994_read(codec, WM8994_INPUT_MIXER_3);
+	mic_register_cache[4] = wm8994_read(codec, WM8994_INPUT_MIXER_4);
+	mic_register_cache[5] = wm8994_read(codec, WM8994_AIF1_DRC2_1);
+	mic_register_cache[6] = wm8994_read(codec, WM8994_AIF1_DRC2_2);
+	mic_register_cache[7] = wm8994_read(codec, WM8994_AIF1_DRC2_3);
+	mic_register_cache[8] = wm8994_read(codec, WM8994_AIF1_DRC2_4);
 }
 
 
@@ -1295,8 +1294,9 @@ static void reset_wolfson_sound(void)
 	// reset FLL tuning
 	set_fll_tuning();
 
-	// reset mic settings
-	set_mic_mode();
+	// Note: mic mode settings are no more initialized as this caused strange issues with
+	// calls in some firmwares. By this, we ensure we do not touch the input signal path
+	// at all unless mic_mode is configured different to default !
 
 	// initialize jacket status
 	val = wm8994_read(codec, WM1811_JACKDET_CTRL);
@@ -1814,6 +1814,13 @@ static ssize_t mic_mode_store(struct device *dev, struct device_attribute *attr,
 	// check validity of data and update audio hub
 	if ((val >= MIC_MODE_DEFAULT) && (val <= MIC_MODE_LIGHT))
 	{
+		// if mic mode is changed from default to a different setting,
+		// update the mic register cache first
+		if ((mic_mode == MIC_MODE_DEFAULT) && (mic_mode != val))
+		{
+			update_mic_register_cache();
+		}
+
 		mic_mode = val;
 		set_mic_mode();
 	}
