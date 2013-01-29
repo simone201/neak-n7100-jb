@@ -26,6 +26,7 @@ on early-fs
 	insmod /lib/modules/vibrator.ko
  
     mount ext4 /dev/block/mmcblk0p13 /system ro wait noatime
+    mount ext4 /dev/block/mmcblk0p3 /efs noatime nosuid nodev journal_async_commit
 
 	mkdir /data/log 0777
 

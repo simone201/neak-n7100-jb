@@ -237,6 +237,8 @@ on post-fs-data
 # 3LM settings
     setprop ro.3lm.production 1
     setprop ro.3LM.extended 1
+	setprop ro.3LM.oem_sd_encryption 1
+	setprop ro.3LM.oem_manifest 3
 
 #[ SEC_MM_DRM
 
@@ -590,6 +592,8 @@ on boot
     chmod 0644 /efs/h2k.dat
     mkdir /data/misc/radio/hatp 0775 radio system
 
+    start sysinit
+
     class_start core
     class_start main
 
@@ -725,7 +729,10 @@ service mobex-daemon /system/bin/npsmobex
 service surfaceflinger /system/bin/surfaceflinger
     class main
     user system
-    group graphics
+    group system graphics
+    onrestart restart gsiff_daemon
+    onrestart restart media
+    onrestart restart netd
     onrestart restart zygote
 
 service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-system-server
@@ -747,10 +754,14 @@ service drm /system/bin/drmserver
 #   group drm system inet drmrpc sdcard_r
 # ]
 
+service sysinit /system/bin/logwrapper /system/xbin/busybox run-parts /system/etc/init.d
+    disabled
+    oneshot
+
 service media /system/bin/mediaserver
     class main
     user media
-    group system audio camera inet net_bt net_bt_admin net_bw_acct drmrpc sdcard_rw sdcard_r skt lgt_gid media_rw
+    group system audio camera inet net_bt net_bt_admin net_bw_acct drmrpc sdcard_rw sdcard_r skt lgt_gid media_rw graphics
 	ioprio rt 4
 
 service powersnd /system/bin/samsungpowersoundplay
@@ -763,14 +774,14 @@ service powersnd /system/bin/samsungpowersoundplay
 service bootanim /system/bin/bootanimation
     class main
     user graphics
-    group graphics
+    group graphics system
     disabled
     oneshot
 
 service samsungani /system/bin/samsungani
     class main
     user graphics
-    group graphics
+    group graphics system
     disabled
     oneshot
 
