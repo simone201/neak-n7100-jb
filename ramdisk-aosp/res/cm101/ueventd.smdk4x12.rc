@@ -99,3 +99,7 @@
 
 # sensorhub
 /dev/ssp_sensorhub        0660   system     input
+
+# t0lte
+/dev/block/mmcblk0p10     0660   system     radio
+/dev/mdm                  0660   system     system
