@@ -1,10 +1,11 @@
 /*
- * Author: andip71, 27.01.2013
+ * Author: andip71, 28.01.2013
  *
- * Version 1.4.8
+ * Version 1.4.9
  *
  * credits: Supercurio for ideas and partially code from his Voodoo
  * 	    sound implementation,
+ *          Yank555 for great support on problem analysis,
  *          Gokhanmoral for further modifications to the original code
  *
  * This software is licensed under the terms of the GNU General Public
@@ -33,7 +34,7 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 
 // Wolfson sound general
 #define WOLFSON_SOUND_DEFAULT 	0
-#define WOLFSON_SOUND_VERSION 	"1.4.8"
+#define WOLFSON_SOUND_VERSION 	"1.4.9"
 
 // Debug mode
 #define DEBUG_DEFAULT 		1

@@ -1,10 +1,11 @@
 /*
- * Author: andip71, 27.01.2013
+ * Author: andip71, 28.01.2013
  *
- * Version 1.4.8
+ * Version 1.4.9
  *
  * credits: Supercurio for ideas and partially code from his Voodoo
  * 	    sound implementation,
+ *          Yank555 for great support on problem analysis,
  *          Gokhanmoral for further modifications to the original code
  *
  * This software is licensed under the terms of the GNU General Public
@@ -64,6 +65,7 @@ static int privacy_mode;
 
 static int mic_mode;
 static unsigned int mic_register_cache[9];
+static bool mic_cache_filled = false;
 
 static unsigned int debug_register;
 
@@ -1173,7 +1175,8 @@ static unsigned int get_mic_mode_for_hook(int reg_index, unsigned int value)
 {
 	// if mic mode is default -> return value back to hook
 	// otherwise, request value for selected mic mode
-	if (mic_mode == MIC_MODE_DEFAULT)
+	// (but only if cache was previously filled with default register values)
+	if ((mic_mode == MIC_MODE_DEFAULT) || (mic_cache_filled == false))
 		return value;
 
 	return get_mic_mode(reg_index);
@@ -1192,6 +1195,9 @@ static void update_mic_register_cache(void)
 	mic_register_cache[6] = wm8994_read(codec, WM8994_AIF1_DRC2_2);
 	mic_register_cache[7] = wm8994_read(codec, WM8994_AIF1_DRC2_3);
 	mic_register_cache[8] = wm8994_read(codec, WM8994_AIF1_DRC2_4);
+	
+	// set fill status for cache to true (safety-net to ever avoid writing unfilled cache to registers at any time)
+	mic_cache_filled = true;
 }
 
 
@@ -1811,23 +1817,22 @@ static ssize_t mic_mode_store(struct device *dev, struct device_attribute *attr,
 	// read value for mic_mode from input buffer
 	ret = sscanf(buf, "%d", &val);
 
-	// check validity of data and update audio hub
-	if ((val >= MIC_MODE_DEFAULT) && (val <= MIC_MODE_LIGHT))
+	// check validity of data and continue only if mic_mode has changed
+	if ((val >= MIC_MODE_DEFAULT) && (val <= MIC_MODE_LIGHT) && (val != mic_mode))
 	{
-		// if mic mode is changed from default to a different setting,
-		// update the mic register cache first
-		if ((mic_mode == MIC_MODE_DEFAULT) && (mic_mode != val))
+		// if current mic mode is (was) default, update the mic register cache first
+		if (mic_mode == MIC_MODE_DEFAULT)
 		{
 			update_mic_register_cache();
 		}
 
 		mic_mode = val;
 		set_mic_mode();
-	}
 
-	// print debug info
-	if (debug(DEBUG_NORMAL))
-		printk("Wolfson-Sound: Mic mode %d\n", mic_mode);
+		// print debug info
+		if (debug(DEBUG_NORMAL))
+			printk("Wolfson-sound: Mic mode %d\n", mic_mode);
+	}
 
 	return count;
 }
