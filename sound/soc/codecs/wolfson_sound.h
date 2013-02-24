@@ -1,12 +1,7 @@
 /*
- * Author: andip71, 28.01.2013
+ * Author: andip71, 22.02.2013
  *
- * Version 1.4.9
- *
- * credits: Supercurio for ideas and partially code from his Voodoo
- * 	    sound implementation,
- *          Yank555 for great support on problem analysis,
- *          Gokhanmoral for further modifications to the original code
+ * Version 1.5.1
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -34,10 +29,11 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 
 // Wolfson sound general
 #define WOLFSON_SOUND_DEFAULT 	0
-#define WOLFSON_SOUND_VERSION 	"1.4.9"
+#define WOLFSON_SOUND_VERSION 	"1.5.1"
 
 // Debug mode
 #define DEBUG_DEFAULT 		1
+
 #define DEBUG_OFF 		0
 #define DEBUG_NORMAL 		1
 #define DEBUG_VERBOSE 		2
@@ -59,9 +55,13 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 #define EQ_GAIN_MIN 		-12
 #define EQ_GAIN_MAX  		12
 
-// EQ bands
-#define BANDS_ALL		6
+#define EQ_GAIN_STUNING_1	-12
+#define EQ_GAIN_STUNING_2	4
+#define EQ_GAIN_STUNING_3	-1
+#define EQ_GAIN_STUNING_4	-3
+#define EQ_GAIN_STUNING_5	4
 
+// EQ bands
 #define EQ_BAND_1_A_DEFAULT	0x0FCA
 #define EQ_BAND_1_B_DEFAULT	0x0400
 #define EQ_BAND_1_PG_DEFAULT	0x00D8
@@ -81,16 +81,44 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 #define EQ_BAND_5_B_DEFAULT	0x0559
 #define EQ_BAND_5_PG_DEFAULT	0x4000
 
-// EQ saturation prevention
-#define EQ_DRC_MAXGAIN_DEFAULT	0
-#define EQ_DRC_DCY_DEFAULT	2
-#define EQ_DRC_ATK_DEFAULT	4
-#define EQ_DRC_HI_COMP_DEFAULT	5
+#define EQ_BAND_1_A_STUNING	0x0FE3
+#define EQ_BAND_1_B_STUNING	0x0403
+#define EQ_BAND_1_PG_STUNING	0x0074
+#define EQ_BAND_2_A_STUNING	0x1F03
+#define EQ_BAND_2_B_STUNING	0xF0F9
+#define EQ_BAND_2_C_STUNING	0x040A
+#define EQ_BAND_2_PG_STUNING	0x03DA
+#define EQ_BAND_3_A_STUNING	0x1ED2
+#define EQ_BAND_3_B_STUNING	0xF11A
+#define EQ_BAND_3_C_STUNING	0x040A
+#define EQ_BAND_3_PG_STUNING	0x045D
+#define EQ_BAND_4_A_STUNING	0x0E76
+#define EQ_BAND_4_B_STUNING	0xFCE4
+#define EQ_BAND_4_C_STUNING	0x040A
+#define EQ_BAND_4_PG_STUNING	0x330D
+#define EQ_BAND_5_A_STUNING	0xFC8F
+#define EQ_BAND_5_B_STUNING	0x0400
+#define EQ_BAND_5_PG_STUNING	0x323C
 
-#define EQ_DRC_MAXGAIN_PREVENT	3
-#define EQ_DRC_DCY_PREVENT	4
-#define EQ_DRC_ATK_PREVENT	1
-#define EQ_DRC_HI_COMP_PREVENT	5
+// EQ saturation prevention
+#define AIF1_DRC1_1_DEFAULT	152
+#define AIF1_DRC1_2_DEFAULT	2116
+#define AIF1_DRC1_3_DEFAULT	232
+#define AIF1_DRC1_4_DEFAULT	528
+
+#define AIF1_DRC1_1_PREVENT	132
+#define AIF1_DRC1_2_PREVENT	647
+#define AIF1_DRC1_3_PREVENT	232
+#define AIF1_DRC1_4_PREVENT	528
+
+#define AIF1_DRC1_1_STUNING	152
+#define AIF1_DRC1_2_STUNING	2116
+#define AIF1_DRC1_3_STUNING	16
+#define AIF1_DRC1_4_STUNING	235
+
+// Speaker tuning
+#define SPEAKER_BOOST_DEFAULT	4
+#define SPEAKER_BOOST_TUNED	6
 
 // FLL tuning loop gains
 #define FLL_LOOP_GAIN_DEFAULT	0
@@ -109,40 +137,16 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 #define SPEAKER_MIN 		57
 
 // Microphone control
-#define MIC_MODE_DEFAULT 	0
-#define MIC_MODE_CONCERT 	1
-#define MIC_MODE_NOISY 		2
-#define MIC_MODE_LIGHT 		3
+#define MICLEVEL_GENERAL	28
+#define MICLEVEL_CALL		25
 
-// Microphone control
-#define MIC_CONCERT_LEFT_VALUE		271
-#define MIC_CONCERT_RIGHT_VALUE		271
-#define MIC_CONCERT_INPUT_MIXER_3	32
-#define MIC_CONCERT_INPUT_MIXER_4	32
-#define MIC_CONCERT_DRC1_1		156
-#define MIC_CONCERT_DRC1_2		2118
-#define MIC_CONCERT_DRC1_3		17
-#define MIC_CONCERT_DRC1_4		201
+#define MICLEVEL_MIN		0
+#define MICLEVEL_MAX		31
 
-#define MIC_NOISY_LEFT_VALUE		269
-#define MIC_NOISY_RIGHT_VALUE		269
-#define MIC_NOISY_INPUT_MIXER_3		32
-#define MIC_NOISY_INPUT_MIXER_4		32
-#define MIC_NOISY_DRC1_1		156
-#define MIC_NOISY_DRC1_2		2117
-#define MIC_NOISY_DRC1_3		153
-#define MIC_NOISY_DRC1_4		364
+// Register dump
+#define REGDUMP_BANKS		4
+#define REGDUMP_REGISTERS	300
 
-#define MIC_LIGHT_LEFT_VALUE		268
-#define MIC_LIGHT_RIGHT_VALUE		268
-#define MIC_LIGHT_INPUT_MIXER_3		32
-#define MIC_LIGHT_INPUT_MIXER_4		32
-#define MIC_LIGHT_DRC1_1		156
-#define MIC_LIGHT_DRC1_2		2116
-#define MIC_LIGHT_DRC1_3		161
-#define MIC_LIGHT_DRC1_4		462
-
-// General
+// General switches
 #define ON 	1
 #define OFF 	0
-
