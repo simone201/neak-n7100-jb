@@ -911,6 +911,7 @@ static int lcd_power_on(void *ld, int enable)
 		return -EPERM;
 	}
 #endif
+
 	if (enable) {
 #if defined(GPIO_LCD_22V_EN_00)
 		gpio_set_value(GPIO_LCD_22V_EN_00, GPIO_LEVEL_HIGH);
@@ -968,6 +969,7 @@ static int lcd_power_on(void *ld, int enable)
 		return -EPERM;
 	}
 #endif
+
 	if (enable) {
 #if defined(GPIO_LCD_22V_EN_00)
 		gpio_set_value(GPIO_LCD_22V_EN_00, GPIO_LEVEL_HIGH);
