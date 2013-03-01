@@ -19,6 +19,10 @@
 
 #include "power.h"
 
+#ifndef CONFIG_AOSP_ROM_SUPPORT
+#include <linux/delay.h>
+#endif
+
 static wait_queue_head_t fb_state_wq;
 static DEFINE_SPINLOCK(fb_state_lock);
 static enum {
@@ -32,6 +36,10 @@ static void stop_drawing_early_suspend(struct early_suspend *h)
 {
 	int ret;
 	unsigned long irq_flags;
+
+#ifndef CONFIG_AOSP_ROM_SUPPORT
+	msleep(400);
+#endif
 
 	spin_lock_irqsave(&fb_state_lock, irq_flags);
 	fb_state = FB_STATE_REQUEST_STOP_DRAWING;
