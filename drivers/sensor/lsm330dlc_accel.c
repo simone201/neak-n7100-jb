@@ -1292,14 +1292,12 @@ err_position_device_create_file:
 #ifdef DEBUG_ODR
 	device_remove_file(data->dev, &dev_attr_odr);
 err_odr_device_create_file:
+#endif
 #ifdef USES_MOVEMENT_RECOGNITION
 	device_remove_file(data->dev, &dev_attr_reactive_alert);
-#else
-	device_remove_file(data->dev, &dev_attr_calibration);
-#endif
-#endif
-#ifdef USES_MOVEMENT_RECOGNITION
 err_reactive_device_create_file:
+	device_remove_file(data->dev, &dev_attr_calibration);
+#else
 	device_remove_file(data->dev, &dev_attr_calibration);
 #endif
 err_cal_device_create_file:

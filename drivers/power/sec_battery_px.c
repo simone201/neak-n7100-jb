@@ -51,7 +51,8 @@
 #define SIOP_ACTIVE_CHARGE_CURRENT		450
 #define SIOP_DEACTIVE_CHARGE_CURRENT		1500
 
-#if defined(CONFIG_TARGET_LOCALE_KOR)
+#if defined(CONFIG_TARGET_LOCALE_KOR) || \
+	defined(CONFIG_TARGET_LOCALE_USA)
 #define ADC_TA_TH_L	800
 #define ADC_TA_TH_H	2100
 #else
@@ -70,9 +71,19 @@ enum {
 
 #if defined(CONFIG_MACH_P4NOTE)
 #define P4_CHARGING_FEATURE_01	/* SMB347 + MAX17042, use TA_nCON */
-#if defined(CONFIG_TARGET_LOCALE_KOR) || \
-(defined(CONFIG_MACH_P4NOTE) && defined(CONFIG_TARGET_LOCALE_USA))
-#define PRE_FULL_CHARGING
+#if defined(CONFIG_TARGET_LOCALE_USA) || defined(CONFIG_TARGET_LOCALE_KOR)
+enum abs_charging_property {
+	ABS_CHARGING_PROP_CHARGING,
+	ABS_CHARGING_PROP_PRE_FULL_CHARGING,
+	ABS_CHARGING_PROP_REAL_FULL_CHARGING,
+};
+#endif
+
+#if defined(CONFIG_MACH_P4NOTE_KOR_ANY) || defined(CONFIG_MACH_P4NOTE_KOR_SKT) \
+	|| defined(CONFIG_MACH_P4NOTE_KOR_KT) || defined(CONFIG_MACH_P4NOTE_KTT_ANY)
+#define MIN_FULL_SOC	90
+#else
+#define MIN_FULL_SOC	95
 #endif
 #endif
 
@@ -128,14 +139,6 @@ static enum power_supply_property sec_battery_properties[] = {
 static enum power_supply_property sec_power_properties[] = {
 	POWER_SUPPLY_PROP_ONLINE,
 };
-
-#ifdef PRE_FULL_CHARGING
-enum pre_charging_property {
-	PRE_CHARGING_PROP_CHARGING,
-	PRE_CHARGING_PROP_PRE_FULL_CHARGING,
-	PRE_CHARGING_PROP_REAL_FULL_CHARGING,
-};
-#endif
 
 struct battery_info {
 	u32 batt_id;		/* Battery ID from ADC */
@@ -231,8 +234,9 @@ struct battery_data {
 #if defined(CONFIG_MACH_P4NOTELTE_USA_SPR)
 	bool slate_mode;
 #endif
-#ifdef PRE_FULL_CHARGING
-	enum pre_charging_property pre_charging_status;
+#if (defined(CONFIG_MACH_P4NOTE) && \
+	(defined(CONFIG_TARGET_LOCALE_USA) || defined(CONFIG_TARGET_LOCALE_KOR)))
+	enum abs_charging_property abs_timer_status;
 #endif
 	int charge_type;
 };
@@ -496,7 +500,7 @@ enum charger_type sec_get_dedicted_charger_type(struct battery_data *battery)
 
 	if ((lpcharge) &&
 		battery->cable_type == POWER_SUPPLY_TYPE_DOCK) {
-		battery->cable_sub_type == ONLINE_SUB_TYPE_DESK;
+		battery->cable_sub_type = ONLINE_SUB_TYPE_DESK;
 		pr_info("[BATT]%s: m(%d), s(%d), p(%d) acc(%d) pwr(%d)\n",
 			__func__, battery->cable_type, battery->cable_sub_type,
 			battery->cable_pwr_type, accessory_line,
@@ -786,36 +790,6 @@ static int sec_get_bat_level(struct power_supply *bat_ps)
 #endif /* CONFIG_TARGET_LOCALE_KOR */
 	battery->info.batt_current_avg = avg_current;
 
-#ifdef PRE_FULL_CHARGING
-	/* Algorithm for reducing time to fully charged (from MAXIM) */
-	if (battery->info.charging_enabled &&	/* Charging is enabled */
-		!battery->info.batt_is_recharging &&	/* Not Recharging */
-		((battery->info.charging_source == CHARGER_AC) ||
-		(battery->info.charging_source == CHARGER_MISC) ||
-		(battery->info.charging_source == CHARGER_DOCK)) &&
-		!battery->is_first_check &&	/* Skip the first check */
-		(fg_vcell > 4000 && fg_soc > 95 && fg_vfsoc > 70) &&
-		((fg_current > 20 && fg_current < 330) &&
-		(avg_current > 20 && avg_current < 350))) {
-
-		if (battery->full_check_flag == 2) {
-			pr_info("%s: force fully charged SOC !! (%d)", __func__,
-					battery->full_check_flag);
-			fg_set_full_charged();
-			fg_soc = get_fuelgauge_value(FG_LEVEL);
-			battery->pre_charging_status |=
-				PRE_CHARGING_PROP_PRE_FULL_CHARGING;
-		} else if (battery->full_check_flag < 2)
-			pr_info("%s: full_check_flag (%d)", __func__,
-					battery->full_check_flag);
-
-		/* prevent overflow */
-		if (battery->full_check_flag++ > 10000)
-			battery->full_check_flag = 3;
-	} else
-		battery->full_check_flag = 0;
-#endif
-
 /* P4-Creative does not set full flag by force */
 #if !defined(CONFIG_MACH_P4NOTE)
 	/* Algorithm for reducing time to fully charged (from MAXIM) */
@@ -834,6 +808,40 @@ static int sec_get_bat_level(struct power_supply *bat_ps)
 			fg_soc = get_fuelgauge_value(FG_LEVEL);
 		} else if (battery->full_check_flag < 2)
 			pr_info("%s: full_check_flag (%d)", __func__,
+					battery->full_check_flag);
+
+		/* prevent overflow */
+		if (battery->full_check_flag++ > 10000)
+			battery->full_check_flag = 3;
+	} else
+		battery->full_check_flag = 0;
+#elif (defined(CONFIG_MACH_P4NOTE) && \
+	(defined(CONFIG_TARGET_LOCALE_USA) || defined(CONFIG_TARGET_LOCALE_KOR)))
+	if (battery->info.charging_enabled && /* Charging is enabled */
+		((battery->info.charging_source == CHARGER_AC) ||
+		(battery->info.charging_source == CHARGER_MISC) ||
+		(battery->info.charging_source == CHARGER_DOCK)) &&
+		!battery->is_first_check && !battery->abs_timer_status &&
+		(fg_vcell > 4000 && fg_soc > MIN_FULL_SOC && fg_vfsoc > 70)) {
+			if (!battery->info.batt_is_recharging &&
+				battery->full_check_flag >= 2  &&
+				((fg_current > 20 && fg_current < 330) &&
+				(avg_current > 20 && avg_current < 350))) {
+				fg_set_full_charged();
+				fg_soc = get_fuelgauge_value(FG_LEVEL);
+				battery->abs_timer_status |=
+				ABS_CHARGING_PROP_PRE_FULL_CHARGING;
+			} else if (battery->info.batt_is_recharging &&
+				!battery->abs_timer_status &&
+				battery->full_check_flag >= 2 && fg_soc > 99) {
+				fg_set_full_charged();
+				fg_soc = get_fuelgauge_value(FG_LEVEL);
+				battery->abs_timer_status |=
+				ABS_CHARGING_PROP_PRE_FULL_CHARGING;
+				pr_info("%s: fully charged by abs timer\n",
+				__func__);
+			} else if (battery->full_check_flag < 2)
+				pr_info("%s: full_check_flag (%d)", __func__,
 					battery->full_check_flag);
 
 		/* prevent overflow */
@@ -1315,8 +1323,9 @@ static int sec_bat_get_charging_status(struct battery_data *battery)
 	case CHARGER_AC:
 	case CHARGER_MISC:
 	case CHARGER_DOCK:
-#ifdef PRE_FULL_CHARGING
-		if (battery->pre_charging_status)
+#if (defined(CONFIG_MACH_P4NOTE) && \
+	(defined(CONFIG_TARGET_LOCALE_USA) || defined(CONFIG_TARGET_LOCALE_KOR)))
+		if (battery->abs_timer_status)
 			return POWER_SUPPLY_STATUS_FULL;
 #else
 		if (battery->info.batt_is_full)
@@ -1654,6 +1663,9 @@ static ssize_t sec_bat_show_property(struct device *dev,
 		else if (get_fuelgauge_value(FG_BATTERY_TYPE) ==
 			ATL_BATTERY_TYPE)
 			sprintf(batt_str, "ATL");
+		else if (get_fuelgauge_value(FG_BATTERY_TYPE) ==
+			BYD_BATTERY_TYPE)
+			sprintf(batt_str, "BYD");
 		i += scnprintf(buf + i, PAGE_SIZE - i, "%s_%s\n",
 		batt_str, batt_str);
 		break;
@@ -2229,8 +2241,10 @@ static void sec_cable_check_status(struct battery_data *battery)
 	} else {
 		status = CHARGER_BATTERY;
 		sec_set_chg_en(battery, 0);
-#ifdef PRE_FULL_CHARGING
-		battery->pre_charging_status = PRE_CHARGING_PROP_CHARGING;
+#if (defined(CONFIG_MACH_P4NOTE) && \
+	(defined(CONFIG_TARGET_LOCALE_USA) || defined(CONFIG_TARGET_LOCALE_KOR)))
+		battery->abs_timer_status =
+			ABS_CHARGING_PROP_CHARGING;
 #endif
 	}
 __end__:
@@ -2332,9 +2346,10 @@ void sec_cable_charging(struct battery_data *battery)
 		battery->info.batt_health == POWER_SUPPLY_HEALTH_GOOD) {
 		sec_set_chg_en(battery, 0);
 		battery->info.batt_is_full = 1;
-#ifdef PRE_FULL_CHARGING
-		battery->pre_charging_status |=
-			PRE_CHARGING_PROP_REAL_FULL_CHARGING;
+#if (defined(CONFIG_MACH_P4NOTE) && \
+	(defined(CONFIG_TARGET_LOCALE_USA) || defined(CONFIG_TARGET_LOCALE_KOR)))
+		battery->abs_timer_status |=
+			ABS_CHARGING_PROP_REAL_FULL_CHARGING;
 #endif
 		/* full charge compensation algorithm by MAXIM */
 		fg_fullcharged_compensation(
@@ -2551,7 +2566,7 @@ static int sec_bat_read_proc(char *buf, char **start,
 	cur_time = ktime_to_timespec(ktime);
 
 	len = sprintf(buf,
-#ifdef PRE_FULL_CHARGING
+#if defined(CONFIG_MACH_P4NOTE)
 		"%lu\t%u\t%u\t%u\t%u\t%u\t%u\t%d\t%d\t%u\t%u\t%u\t%u\t%u\t%u\t%u\t%u\t%u\t%u\t%d\t0x%04x\t0x%04x\n",
 #else
 		"%lu\t%u\t%u\t%u\t%u\t%u\t%u\t%d\t%d\t%u\t%u\t%u\t%u\t%u\t%u\t%u\t%u\t%u\t%u\t0x%04x\t0x%04x\n",
@@ -2567,8 +2582,8 @@ static int sec_bat_read_proc(char *buf, char **start,
 		sec_bat_get_charging_status(battery), battery->info.batt_health,
 		battery->info.batt_is_full, battery->info.batt_is_recharging,
 		battery->info.abstimer_is_active, battery->info.siop_activated,
-#ifdef PRE_FULL_CHARGING
-		battery->pre_charging_status,
+#if defined(CONFIG_MACH_P4NOTE)
+		battery->abs_timer_status,
 #endif
 		get_fuelgauge_capacity(CAPACITY_TYPE_FULL),
 		get_fuelgauge_capacity(CAPACITY_TYPE_REP)
@@ -2708,8 +2723,9 @@ static int __devinit sec_bat_probe(struct platform_device *pdev)
 	battery->sec_battery_initial = 1;
 	battery->low_batt_boot_flag = 0;
 
-#ifdef PRE_FULL_CHARGING
-	battery->pre_charging_status = PRE_CHARGING_PROP_CHARGING;
+#if (defined(CONFIG_MACH_P4NOTE) && \
+	(defined(CONFIG_TARGET_LOCALE_USA) || defined(CONFIG_TARGET_LOCALE_KOR)))
+	battery->abs_timer_status = ABS_CHARGING_PROP_CHARGING;
 #endif
 
 	/* Get initial cable status */

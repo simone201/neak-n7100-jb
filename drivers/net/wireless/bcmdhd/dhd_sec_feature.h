@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Header file describing the internal (inter-module) DHD interfaces.
  *
  * Provides type definitions and function prototypes used to link the
@@ -63,6 +63,10 @@
 #define WIFI_TURNOFF_DELAY	200
 #endif
 
+#ifdef CONFIG_MACH_M0
+#define WL11U
+#endif
+
 /* REGION CODE */
 
 #if (WLAN_REGION_CODE >= 100) && (WLAN_REGION_CODE < 200) /*EUR*/
@@ -110,6 +114,29 @@
 
 #if (WLAN_REGION_CODE == 203) /* LGT */
 #endif
+
+#if (WLAN_REGION_CODE == 204) /* KT WIFI */
+#define VLAN_MODE_OFF
+#define KEEP_ALIVE_PACKET_PERIOD_30_SEC
+#define FULL_ROAMING_SCAN_PERIOD_60_SEC
+
+#ifdef ROAM_ENABLE
+#undef ROAM_ENABLE
+#endif /* ROAM_ENABLE */
+
+#ifdef ROAM_API
+#undef ROAM_API
+#endif /* ROAM_API */
+
+#ifdef ROAM_CHANNEL_CACHE
+#undef ROAM_CHANNEL_CACHE
+#endif /* ROAM_CHANNEL_CACHE */
+
+#ifdef OKC_SUPPORT
+#undef OKC_SUPPORT
+#endif /* OKC_SUPPORT */
+
+#endif /* (WLAN_REGION_CODE == 204) */
 #endif
 
 #if (WLAN_REGION_CODE >= 300) && (WLAN_REGION_CODE < 400) /* CHN */

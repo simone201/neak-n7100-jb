@@ -333,9 +333,10 @@ static void keyboard_early_suspend(struct early_suspend *early_sus)
 		/*
 		if the command of the caps lock off is needed,
 		this command should be sent.
-		sec_keyboard_tx(0xcb);
-		msleep(20);
 		*/
+		sec_keyboard_tx(data,0xcb);
+		msleep(20);
+
 		release_all_keys(data);
 		if (data->univ_kbd_dock == false)
 			sec_keyboard_tx(data, 0x10);	/* the idle mode */

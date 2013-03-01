@@ -1400,8 +1400,9 @@ static struct sec_battery_platform_data sec_battery_platform = {
 #endif
 	.recharge_voltage = 4150,	/*4.15V */
 
-	.charge_duration = 10*60*60,	/* 10 hour */
-	.recharge_duration = 1.5*60*60,	/* 1.5 hour */
+	.charge_duration = 10 * 60 * 60,	/* 10 hour */
+	.recharge_duration = 1.5 * 60 * 60,	/* 1.5 hour */
+
 	.check_lp_charging_boot = check_bootmode,
 	.check_jig_status = check_jig_on
 };

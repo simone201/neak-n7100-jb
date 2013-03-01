@@ -555,8 +555,10 @@ static void switch_config(u32 rev)
 		t9_config_s[7] = 116;
 		t9_config_s[8] = 55;
 		t9_config_s[14] = 50;
+		t9_config_s[24] = 0;
 		t9_config_s[27] = 64;
 
+		t40_config_s[3] = 15;
 		t40_config_s[4] = 2;
 		t40_config_s[5] = 2;
 
@@ -619,30 +621,42 @@ void __init p4_tsp_init(u32 system_rev)
 	printk(KERN_DEBUG "[TSP] TSP IC : %s\n",
 		(5 <= hw_rev) ? "Atmel" : "Synaptics");
 
-	gpio = GPIO_TSP_RST;
-	gpio_request(gpio, "TSP_RST");
-	gpio_direction_output(gpio, 1);
-	gpio_export(gpio, 0);
-
-	gpio = GPIO_TSP_LDO_ON;
-	gpio_request(gpio, "TSP_LDO_ON");
-	gpio_direction_output(gpio, 1);
-	gpio_export(gpio, 0);
-
 	if (5 <= hw_rev) {
-		gpio = GPIO_TSP_LDO_ON1;
-		gpio_request(gpio, "TSP_LDO_ON1");
-		gpio_direction_output(gpio, 1);
-		gpio_export(gpio, 0);
-
 		gpio = GPIO_TSP_LDO_ON2;
 		gpio_request(gpio, "TSP_LDO_ON2");
-		gpio_direction_output(gpio, 1);
+		gpio_direction_output(gpio, 0);
+		gpio_export(gpio, 0);
+
+		gpio = GPIO_TSP_LDO_ON1;
+		gpio_request(gpio, "TSP_LDO_ON1");
+		gpio_direction_output(gpio, 0);
+		gpio_export(gpio, 0);
+
+		gpio = GPIO_TSP_LDO_ON;
+		gpio_request(gpio, "TSP_LDO_ON");
+		gpio_direction_output(gpio, 0);
+		gpio_export(gpio, 0);
+
+		gpio = GPIO_TSP_RST;
+		gpio_request(gpio, "TSP_RST");
+		gpio_direction_output(gpio, 0);
 		gpio_export(gpio, 0);
 
 		switch_config(hw_rev);
-	} else if (1 <= hw_rev)
-		have_tsp_ldo = true;
+	} else {
+		gpio = GPIO_TSP_RST;
+		gpio_request(gpio, "TSP_RST");
+		gpio_direction_output(gpio, 1);
+		gpio_export(gpio, 0);
+
+		gpio = GPIO_TSP_LDO_ON;
+		gpio_request(gpio, "TSP_LDO_ON");
+		gpio_direction_output(gpio, 1);
+		gpio_export(gpio, 0);
+
+		if (1 <= hw_rev)
+			have_tsp_ldo = true;
+	}
 
 	gpio = GPIO_TSP_INT;
 	gpio_request(gpio, "TSP_INT");
