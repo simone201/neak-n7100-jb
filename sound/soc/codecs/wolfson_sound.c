@@ -1,7 +1,13 @@
 /*
+<<<<<<< HEAD
  * Author: andip71, 28.01.2013
  *
  * Version 1.4.9
+=======
+ * Author: andip71, 26.02.2013
+ *
+ * Version 1.6.0
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
  *
  * credits: Supercurio for ideas and partially code from his Voodoo
  * 	    sound implementation,
@@ -63,18 +69,43 @@ static int dac_oversampling;
 static int fll_tuning;
 static int privacy_mode;
 
+<<<<<<< HEAD
 static int mic_mode;
 static unsigned int mic_register_cache[9];
 static bool mic_cache_filled = false;
+=======
+static int dac_direct;			// activate dac_direct for headphone eq
+static int dac_oversampling;	// activate 128bit oversampling for headphone eq
+static int fll_tuning;			// activate fll tuning to avoid jitter
+static int stereo_expansion_gain;	// activate stereo expansion effect if greater than zero
+static int mono_downmix;		// activate mono downmix
+static int privacy_mode;		// activate privacy mode
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 
 static unsigned int debug_register;
 
 // internal state variables
+<<<<<<< HEAD
 static bool is_call;
 static bool is_headphone;
 static bool is_socket;
 static bool is_fmradio;
 static bool is_eq;
+=======
+static bool is_call;			// is currently a call active?
+static bool is_headphone;		// is headphone connected?
+static bool is_socket;			// is something connected to the headphone socket?
+static bool is_fmradio;			// is stock fm radio app active?
+static bool is_eq;				// is an equalizer (headphone or speaker tuning) active?
+static bool is_eq_headphone;	// is equalizer for headphone or speaker currently?
+static bool is_mic_controlled;	// is microphone sensivity controlled by wolfson-sound or not?
+static bool is_mono_downmix;	// is mono downmix active?
+
+static int regdump_bank;		// current bank configured for register dump
+static unsigned int regcache[REGDUMP_BANKS * REGDUMP_REGISTERS + 1];	// register cache to highlight changes in dump
+
+static int mic_level;			// internal mic level
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 
 
 /*****************************************/
@@ -113,6 +144,9 @@ static unsigned int get_dac_direct_r(unsigned int val);
 
 static void set_dac_oversampling(void);
 static void set_fll_tuning(void);
+static void set_stereo_expansion(void);
+static void set_mono_downmix(void);
+static unsigned int get_mono_downmix(unsigned int val);
 
 static void set_mic_mode(void);
 static unsigned int get_mic_mode(int reg_index);
@@ -179,6 +213,13 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int val)
 
 				// switch equalizer
 				set_eq();
+<<<<<<< HEAD
+=======
+
+				// switch mic level and mono downmix
+				set_mic_level();
+				set_mono_downmix();
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 			}
 
 			break;
@@ -203,8 +244,14 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int val)
 				if (debug(DEBUG_NORMAL))
 					printk("Wolfson-Sound: Socket un-plugged\n");
 
+<<<<<<< HEAD
 				// Handler: switch equalizer and set speaker volume (for privacy mode)
+=======
+				// Handler: switch equalizer (and all connected functions),
+				// mono downmix and set speaker volume (for privacy mode)
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 				set_eq();
+				set_mono_downmix();
 				set_speaker();
 			}
 			break;
@@ -249,6 +296,13 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int val)
 		case WM8994_OUTPUT_MIXER_2:
 		{
 			newval = get_dac_direct_r(val);
+			break;
+		}
+
+		// mono downmix
+		case WM8994_AIF1_DAC1_FILTERS_1:
+		{
+			newval = get_mono_downmix(val);
 			break;
 		}
 
@@ -578,8 +632,9 @@ static void handler_headphone_detection(void)
 		if (debug(DEBUG_NORMAL))
 			printk("wolfson-sound: Headphone or headset found\n");
 
-		// Handler: switch equalizer and set speaker volume (for privacy mode)
+		// Handler: switch equalizer and mono downmix, set speaker volume (for privacy mode)
 		set_eq();
+		set_mono_downmix();
 		set_speaker();
 	}
 }
@@ -593,7 +648,6 @@ static bool debug (int level)
 
 	return false;
 }
-
 
 
 /*****************************************/
@@ -1055,7 +1109,95 @@ static void set_fll_tuning(void)
 }
 
 
+<<<<<<< HEAD
 // MIC mode
+=======
+// Stereo expansion
+
+static void set_stereo_expansion(void)
+{
+	unsigned int val;
+
+	// read current value of DAC1 filter register and mask out gain value and enable bit
+	val = wm8994_read(codec, WM8994_AIF1_DAC1_FILTERS_2);
+	val &= ~(WM8994_AIF1DAC1_3D_GAIN_MASK);
+	val &= ~(WM8994_AIF1DAC1_3D_ENA_MASK);
+
+	// depending on whether stereo expansion is 0 (=off) or not, modify values for gain
+	// and enabled bit accordingly, also print debug
+	if (stereo_expansion_gain != STEREO_EXPANSION_GAIN_OFF)
+	{
+		val |= (stereo_expansion_gain << WM8994_AIF1DAC1_3D_GAIN_SHIFT) | WM8994_AIF1DAC1_3D_ENA;
+
+		if (debug(DEBUG_NORMAL))
+			printk("wolfson-sound: set_stereo_expansion set to %d\n", stereo_expansion_gain);
+	}
+	else
+	{
+		if (debug(DEBUG_NORMAL))
+			printk("wolfson-sound: set_stereo_expansion off\n");
+	}
+
+	// write value back to audio hub
+	wm8994_write(codec, WM8994_AIF1_DAC1_FILTERS_2, val);
+}
+
+
+// Mono downmix
+
+static void set_mono_downmix(void)
+{
+	unsigned int val;
+
+	if (!is_call && is_headphone && (mono_downmix == ON))
+	{
+		if (!is_mono_downmix)
+		{
+			val = wm8994_read(codec, WM8994_AIF1_DAC1_FILTERS_1);
+			wm8994_write(codec, WM8994_AIF1_DAC1_FILTERS_1, val | WM8994_AIF1DAC1_MONO);
+
+			if (debug(DEBUG_NORMAL))
+				printk("wolfson-sound: set_mono_downmix set to on\n");
+		}
+
+		is_mono_downmix = true;
+	}
+	else
+	{
+		if (is_mono_downmix)
+		{
+			val = wm8994_read(codec, WM8994_AIF1_DAC1_FILTERS_1);
+			wm8994_write(codec, WM8994_AIF1_DAC1_FILTERS_1, val & ~WM8994_AIF1DAC1_MONO);
+
+			if (debug(DEBUG_NORMAL))
+				printk("wolfson-sound: set_mono_downmix set to off\n");
+		}
+
+		is_mono_downmix = false;
+	}
+
+}
+
+
+static unsigned int get_mono_downmix(unsigned int val)
+{
+
+	if (mono_downmix == OFF)
+	{
+		return val;
+	}
+
+	if (is_mono_downmix)
+	{
+		return val | WM8994_AIF1DAC1_MONO;
+	}
+
+	return val & ~WM8994_AIF1DAC1_MONO;
+}
+
+
+// MIC level
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 
 static void set_mic_mode(void)
 {
@@ -1245,6 +1387,10 @@ static void initialize_global_variables(void)
 	dac_oversampling = OFF;
 
 	fll_tuning = OFF;
+	
+	stereo_expansion_gain = STEREO_EXPANSION_GAIN_OFF;
+
+	mono_downmix = OFF;
 
 	privacy_mode = OFF;
 
@@ -1257,6 +1403,12 @@ static void initialize_global_variables(void)
 	is_headphone = false;
 	is_fmradio = false;
 	is_eq = false;
+<<<<<<< HEAD
+=======
+	is_eq_headphone = false;
+	is_mic_controlled=false;
+	is_mono_downmix = false;
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 
 	// print debug info
 	if (debug(DEBUG_NORMAL))
@@ -1300,9 +1452,20 @@ static void reset_wolfson_sound(void)
 	// reset FLL tuning
 	set_fll_tuning();
 
+<<<<<<< HEAD
 	// Note: mic mode settings are no more initialized as this caused strange issues with
 	// calls in some firmwares. By this, we ensure we do not touch the input signal path
 	// at all unless mic_mode is configured different to default !
+=======
+	// reset stereo expansion
+	set_stereo_expansion();
+
+	// reset mono downmix
+	set_mono_downmix();
+
+	// reset mic level
+	set_mic_level();
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 
 	// initialize jacket status
 	val = wm8994_read(codec, WM1811_JACKDET_CTRL);
@@ -1752,6 +1915,85 @@ static ssize_t fll_tuning_store(struct device *dev, struct device_attribute *att
 }
 
 
+// Stereo expansion
+
+static ssize_t stereo_expansion_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	// Terminate instantly if wolfson sound is not enabled
+	if (!wolfson_sound)
+		return 0;
+
+	return sprintf(buf, "Stereo expansion: %d\n", stereo_expansion_gain);
+}
+
+
+static ssize_t stereo_expansion_store(struct device *dev, struct device_attribute *attr,
+					const char *buf, size_t count)
+{
+	unsigned int ret = -EINVAL;
+	unsigned int val;
+
+	// Terminate instantly if wolfson sound is not enabled
+	if (!wolfson_sound)
+		return count;
+
+	// read values from input buffer, check validity and update audio hub
+	ret = sscanf(buf, "%d", &val);
+
+	if ((val >= STEREO_EXPANSION_GAIN_MIN) && (val <= STEREO_EXPANSION_GAIN_MAX))
+	{
+		stereo_expansion_gain = val;
+		set_stereo_expansion();
+	}
+
+	// print debug info
+	if (debug(DEBUG_NORMAL))
+		printk("wolfson-sound: Stereo expansion %d\n", stereo_expansion_gain);
+
+	return count;
+}
+
+
+// Mono downmix
+
+static ssize_t mono_downmix_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	// Terminate instantly if wolfson sound is not enabled
+	if (!wolfson_sound)
+		return 0;
+
+	return sprintf(buf, "Mono downmix: %d\n", mono_downmix);
+}
+
+
+static ssize_t mono_downmix_store(struct device *dev, struct device_attribute *attr,
+					const char *buf, size_t count)
+{
+	unsigned int ret = -EINVAL;
+	unsigned int val;
+
+	// Terminate instantly if wolfson sound is not enabled
+	if (!wolfson_sound)
+		return count;
+
+	// read values from input buffer
+	ret = sscanf(buf, "%d", &val);
+
+	// update only if new value is valid and has changed
+	if (((val == ON) || (val == OFF)) && (val != mono_downmix))
+	{
+		mono_downmix = val;
+		set_mono_downmix();
+
+		// print debug info
+		if (debug(DEBUG_NORMAL))
+			printk("wolfson-sound: Mono downmix %d\n", mono_downmix);
+	}
+
+	return count;
+}
+
+
 // Privacy mode
 
 static ssize_t privacy_mode_show(struct device *dev, struct device_attribute *attr, char *buf)
@@ -1785,7 +2027,7 @@ static ssize_t privacy_mode_store(struct device *dev, struct device_attribute *a
 
 	// print debug info
 	if (debug(DEBUG_NORMAL))
-		printk("Wolfson-Sound: Privacy mode %d\n", privacy_mode);
+		printk("wolfson-sound: Privacy mode %d\n", privacy_mode);
 
 	return count;
 }
@@ -1825,6 +2067,27 @@ static ssize_t mic_mode_store(struct device *dev, struct device_attribute *attr,
 		{
 			update_mic_register_cache();
 		}
+<<<<<<< HEAD
+=======
+	}
+
+	// Just in case the mic levels for both general and call have been reset
+	// to defaults, wolfson-Sound releases control over the microphone again
+	if ((mic_level_general == MICLEVEL_GENERAL) && (mic_level_call == MICLEVEL_CALL))
+	{
+		is_mic_controlled = false;
+	}
+
+	return count;
+}
+
+static ssize_t mic_level_call_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+
+	// Terminate instantly if wolfson sound is not enabled
+	if (!wolfson_sound)
+		return 0;
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 
 		mic_mode = val;
 		set_mic_mode();
@@ -1834,10 +2097,35 @@ static ssize_t mic_mode_store(struct device *dev, struct device_attribute *attr,
 			printk("Wolfson-sound: Mic mode %d\n", mic_mode);
 	}
 
+	// Just in case the mic levels for both general and call have been reset
+	// to defaults, wolfson-Sound releases control over the microphone again
+	if ((mic_level_general == MICLEVEL_GENERAL) && (mic_level_call == MICLEVEL_CALL))
+	{
+		is_mic_controlled = false;
+	}
+
 	return count;
 }
 
 
+<<<<<<< HEAD
+=======
+// Microphone mode (obsolete!!! only existing to ensure wolfson-Sound compatibility)
+
+static ssize_t mic_mode_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+
+	// Terminate instantly if wolfson sound is not enabled
+	if (!wolfson_sound)
+		return 0;
+
+	// always return 0, it is only there for interface compatibility but
+	// has no fuction anymore
+	return sprintf(buf, "Mic mode: 0\n");
+}
+
+
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 // Debug level
 
 static ssize_t debug_level_show(struct device *dev, struct device_attribute *attr, char *buf)
@@ -1930,11 +2218,27 @@ static ssize_t debug_info_show(struct device *dev, struct device_attribute *attr
 	val = wm8994_read(codec, WM8994_INPUT_MIXER_4);
 	sprintf(buf+strlen(buf), "WM8994_INPUT_MIXER_4: %d\n", val);
 
+<<<<<<< HEAD
 	val = wm8994_read(codec, WM8994_AIF1_DRC2_1);
 	sprintf(buf+strlen(buf), "WM8994_AIF1_DRC2_1: %d\n", val);
 
 	val = wm8994_read(codec, WM8994_AIF1_DRC2_2);
 	sprintf(buf+strlen(buf), "WM8994_AIF1_DRC2_2: %d\n", val);
+=======
+	val = wm8994_read(codec, WM8994_AIF1_DAC1_FILTERS_1);
+	sprintf(buf+strlen(buf), "WM8994_AIF1_DAC1_FILTERS_1: %d\n", val);
+
+	val = wm8994_read(codec, WM8994_AIF1_DAC1_FILTERS_2);
+	sprintf(buf+strlen(buf), "WM8994_AIF1_DAC1_FILTERS_2: %d\n", val);
+
+	// add the current states of call, headphone and fmradio
+	sprintf(buf+strlen(buf), "is_call:%d is_socket: %d is_headphone:%d is_fmradio:%d\n",
+				is_call, is_socket, is_headphone, is_fmradio);
+
+	// add the current states of internal headphone handling and mono downmix
+	sprintf(buf+strlen(buf), "is_eq:%d is_eq_headphone: %d is_mono_downmix: %d\n",
+				is_eq, is_eq_headphone, is_mono_downmix);
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 
 	val = wm8994_read(codec, WM8994_AIF1_DRC2_3);
 	sprintf(buf+strlen(buf), "WM8994_AIF1_DRC2_3: %d\n", val);
@@ -2012,7 +2316,15 @@ static DEVICE_ATTR(eq_bands, S_IRUGO | S_IWUGO, eq_bands_show, eq_bands_store);
 static DEVICE_ATTR(dac_direct, S_IRUGO | S_IWUGO, dac_direct_show, dac_direct_store);
 static DEVICE_ATTR(dac_oversampling, S_IRUGO | S_IWUGO, dac_oversampling_show, dac_oversampling_store);
 static DEVICE_ATTR(fll_tuning, S_IRUGO | S_IWUGO, fll_tuning_show, fll_tuning_store);
+<<<<<<< HEAD
 static DEVICE_ATTR(mic_mode, S_IRUGO | S_IWUGO, mic_mode_show, mic_mode_store);
+=======
+static DEVICE_ATTR(stereo_expansion, S_IRUGO | S_IWUGO, stereo_expansion_show, stereo_expansion_store);
+static DEVICE_ATTR(mono_downmix, S_IRUGO | S_IWUGO, mono_downmix_show, mono_downmix_store);
+static DEVICE_ATTR(mic_level_general, S_IRUGO | S_IWUGO, mic_level_general_show, mic_level_general_store);
+static DEVICE_ATTR(mic_level_call, S_IRUGO | S_IWUGO, mic_level_call_show, mic_level_call_store);
+static DEVICE_ATTR(mic_mode, S_IRUGO | S_IWUGO, mic_mode_show, NULL);
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 static DEVICE_ATTR(debug_level, S_IRUGO | S_IWUGO, debug_level_show, debug_level_store);
 static DEVICE_ATTR(debug_info, S_IRUGO | S_IWUGO, debug_info_show, debug_info_store);
 static DEVICE_ATTR(debug_reg, S_IRUGO | S_IWUGO, debug_reg_show, debug_reg_store);
@@ -2030,6 +2342,13 @@ static struct attribute *wolfson_sound_attributes[] = {
 	&dev_attr_dac_direct.attr,
 	&dev_attr_dac_oversampling.attr,
 	&dev_attr_fll_tuning.attr,
+<<<<<<< HEAD
+=======
+	&dev_attr_stereo_expansion.attr,
+	&dev_attr_mono_downmix.attr,
+	&dev_attr_mic_level_general.attr,
+	&dev_attr_mic_level_call.attr,
+>>>>>>> 034e8d9... wolfson_sound: Updated to 1.6.0
 	&dev_attr_mic_mode.attr,
 	&dev_attr_debug_level.attr,
 	&dev_attr_debug_info.attr,
