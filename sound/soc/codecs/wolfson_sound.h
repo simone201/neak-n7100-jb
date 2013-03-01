@@ -1,7 +1,7 @@
 /*
- * Author: andip71, 22.02.2013
+ * Author: andip71, 26.02.2013
  *
- * Version 1.5.1
+ * Version 1.6.0
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -29,7 +29,7 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 
 // Wolfson sound general
 #define WOLFSON_SOUND_DEFAULT 	0
-#define WOLFSON_SOUND_VERSION 	"1.5.1"
+#define WOLFSON_SOUND_VERSION 	"1.6.0"
 
 // Debug mode
 #define DEBUG_DEFAULT 		1
@@ -123,6 +123,12 @@ unsigned int Wolfson_sound_hook_wm8994_write(unsigned int reg, unsigned int valu
 // FLL tuning loop gains
 #define FLL_LOOP_GAIN_DEFAULT	0
 #define FLL_LOOP_GAIN_TUNED	5
+
+// Stereo expansion
+#define STEREO_EXPANSION_GAIN_DEFAULT	0
+#define STEREO_EXPANSION_GAIN_OFF		0
+#define STEREO_EXPANSION_GAIN_MIN		0
+#define STEREO_EXPANSION_GAIN_MAX		31
 
 // headphone levels
 #define HEADPHONE_DEFAULT 	50
