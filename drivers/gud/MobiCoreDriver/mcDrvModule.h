@@ -72,7 +72,6 @@ struct mc_tuple {
 	void		*virtKernelAddr; /**< virtual Kernel start address */
 	void		*physAddr; /**< physical start address */
 	unsigned int	numPages; /**< number of pages */
-	unsigned int	reqSize; /** < requested size */
 };
 
 /**
