@@ -19,6 +19,8 @@ if CPU_EXYNOS4210 || CPU_EXYNOS4212 || CPU_EXYNOS4412
 	source "drivers/media/video/samsung/mfc5x/Kconfig"
 	source "drivers/media/video/samsung/ump_r3p0_lsi/Kconfig"
 	source "drivers/media/video/samsung/mali_r3p0_lsi/Kconfig"
+	source "drivers/media/video/samsung/ump_r3p1_lsi/Kconfig"
+	source "drivers/media/video/samsung/mali_r3p1_lsi/Kconfig"
 endif
 if (CPU_EXYNOS4210 || CPU_EXYNOS4212 || CPU_EXYNOS4412) && !SLP
 	source "drivers/media/video/samsung/mali/Kconfig"
