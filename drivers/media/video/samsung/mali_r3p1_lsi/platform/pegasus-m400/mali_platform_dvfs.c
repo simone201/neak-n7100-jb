@@ -211,10 +211,12 @@ static mali_bool set_mali_dvfs_status(u32 step,mali_bool boostup)
 	}
 
 #ifdef EXYNOS4_ASV_ENABLED
-	if (mali_dvfs[step].clock == 160)
-		exynos4x12_set_abb_member(ABB_G3D, ABB_MODE_100V);
-	else
-		exynos4x12_set_abb_member(ABB_G3D, ABB_MODE_130V);
+	if (samsung_rev() < EXYNOS4412_REV_2_0) {
+		if (mali_dvfs[step].clock == 160)
+			exynos4x12_set_abb_member(ABB_G3D, ABB_MODE_100V);
+		else
+			exynos4x12_set_abb_member(ABB_G3D, ABB_MODE_130V);
+	}
 #endif
 
 
@@ -263,26 +265,33 @@ static mali_bool mali_dvfs_table_update(void)
 	unsigned int i;
 	unsigned int step_num = MALI_DVFS_STEPS;
 
+	if(samsung_rev() < EXYNOS4412_REV_2_0)
+		step_num = MALI_DVFS_STEPS - 1;
+
 	if(soc_is_exynos4412()) {
 		if (exynos_armclk_max == 1000000) {
-			step_num = MALI_DVFS_STEPS - 1;
+			MALI_PRINT(("::C::exynos_result_of_asv : %d\n", exynos_result_of_asv));
 			for (i = 0; i < step_num; i++) {
-				MALI_PRINT((":::exynos_result_of_asv : %d\n", exynos_result_of_asv));
 				mali_dvfs[i].vol = asv_3d_volt_9_table_1ghz_type[i][exynos_result_of_asv];
-				MALI_PRINT(("mali_dvfs[%d].vol = %d 1ghz_type\n", i, mali_dvfs[i].vol));
+				MALI_PRINT(("mali_dvfs[%d].vol = %d \n", i, mali_dvfs[i].vol));
+			}
+		} else if(((is_special_flag() >> G3D_LOCK_FLAG) & 0x1) && (samsung_rev() >= EXYNOS4412_REV_2_0)) {
+			MALI_PRINT(("::L::exynos_result_of_asv : %d\n", exynos_result_of_asv));
+			for (i = 0; i < step_num; i++) {
+				mali_dvfs[i].vol = asv_3d_volt_9_table_for_prime[i][exynos_result_of_asv] + 25000;
+				MALI_PRINT(("mali_dvfs[%d].vol = %d \n ", i, mali_dvfs[i].vol));
 			}
 		} else if (samsung_rev() >= EXYNOS4412_REV_2_0) {
+			MALI_PRINT(("::P::exynos_result_of_asv : %d\n", exynos_result_of_asv));
 			for (i = 0; i < step_num; i++) {
-				MALI_PRINT((":::exynos_result_of_asv : %d\n", exynos_result_of_asv));
 				mali_dvfs[i].vol = asv_3d_volt_9_table_for_prime[i][exynos_result_of_asv];
-				MALI_PRINT(("mali_dvfs[%d].vol = %d 1.6ghz_type\n", i, mali_dvfs[i].vol));
+				MALI_PRINT(("mali_dvfs[%d].vol = %d \n", i, mali_dvfs[i].vol));
 			}
 		} else {
-			step_num = MALI_DVFS_STEPS - 1;
+			MALI_PRINT(("::Q::exynos_result_of_asv : %d\n", exynos_result_of_asv));
 			for (i = 0; i < step_num; i++) {
-				MALI_PRINT((":::exynos_result_of_asv : %d\n", exynos_result_of_asv));
 				mali_dvfs[i].vol = asv_3d_volt_9_table[i][exynos_result_of_asv];
-				MALI_PRINT(("mali_dvfs[%d].vol = %d 1.4ghz_type\n", i, mali_dvfs[i].vol));
+				MALI_PRINT(("mali_dvfs[%d].vol = %d \n", i, mali_dvfs[i].vol));
 			}
 		}
 	}
@@ -298,7 +307,6 @@ static unsigned int decideNextStatus(unsigned int utilization)
 	if (mali_runtime_resumed >= 0) {
 		level = mali_runtime_resumed;
 		mali_runtime_resumed = -1;
-		return level;
 	}
 
 	if (mali_dvfs_threshold[maliDvfsStatus.currentStep].upthreshold

@@ -33,7 +33,8 @@
 
 #if MALI_INTERNAL_TIMELINE_PROFILING_ENABLED
 #include "mali_osk_profiling.h"
-#include "cinstr/mali_cinstr_profiling_events_m200.h"
+unsigned long gFreq = 366;
+int gVolt = 5000;
 #endif
 
 #include <asm/io.h>
@@ -161,21 +162,15 @@ void mali_regulator_set_voltage(int min_uV, int max_uV)
 
     MALI_DEBUG_PRINT(2, ("= regulator_set_voltage: %d, %d \n",min_uV, max_uV));
 
-#if MALI_INTERNAL_TIMELINE_PROFILING_ENABLED
-    _mali_osk_profiling_add_event( MALI_PROFILING_EVENT_TYPE_SINGLE |
-                               MALI_PROFILING_EVENT_CHANNEL_SOFTWARE |
-                               MALI_PROFILING_EVENT_REASON_SINGLE_SW_GPU_VOLTS,
-                               min_uV, max_uV, 1, 0, 0);
-#endif
-
     regulator_set_voltage(g3d_regulator,min_uV,max_uV);
 	voltage = regulator_get_voltage(g3d_regulator);
 
 #if MALI_INTERNAL_TIMELINE_PROFILING_ENABLED
-    _mali_osk_profiling_add_event( MALI_PROFILING_EVENT_TYPE_SINGLE |
-                               MALI_PROFILING_EVENT_CHANNEL_SOFTWARE |
-                               MALI_PROFILING_EVENT_REASON_SINGLE_SW_GPU_VOLTS,
-                               voltage, 0, 2, 0, 0);
+	gVolt = voltage/1000;
+	_mali_osk_profiling_add_event(MALI_PROFILING_EVENT_TYPE_SINGLE | 
+				MALI_PROFILING_EVENT_CHANNEL_GPU | 
+				MALI_PROFILING_EVENT_REASON_SINGLE_GPU_FREQ_VOLT_CHANGE, gFreq, gVolt, 
+				0, 0, 0); 
 #endif
 
 	mali_gpu_vol = voltage;
@@ -333,6 +328,7 @@ mali_bool mali_clk_set_rate(unsigned int clk, unsigned int mhz)
 	bis_vpll = MALI_TRUE;
 #endif
 
+	trace_printk("SPI_GPUFREQ_%uMHz\n", mali_gpu_clk);
 	_mali_osk_lock_wait(mali_dvfs_lock, _MALI_OSK_LOCKMODE_RW);
 
 	if (mali_clk_get(bis_vpll) == MALI_FALSE)
@@ -359,23 +355,16 @@ mali_bool mali_clk_set_rate(unsigned int clk, unsigned int mhz)
 	if (clk_enable(mali_clock) < 0)
 		return MALI_FALSE;
 
-#if MALI_INTERNAL_TIMELINE_PROFILING_ENABLED
-    unsigned long previous_rate = 0;
-    previous_rate = clk_get_rate(mali_clock);
-    _mali_osk_profiling_add_event( MALI_PROFILING_EVENT_TYPE_SINGLE |
-                               MALI_PROFILING_EVENT_CHANNEL_SOFTWARE |
-                               MALI_PROFILING_EVENT_REASON_SINGLE_SW_GPU_FREQ,
-                               previous_rate, 0, 0, 0, 0);
-#endif
 
 	clk_set_rate(mali_clock, rate);
 	rate = clk_get_rate(mali_clock);
 
 #if MALI_INTERNAL_TIMELINE_PROFILING_ENABLED
-    _mali_osk_profiling_add_event( MALI_PROFILING_EVENT_TYPE_SINGLE |
-                               MALI_PROFILING_EVENT_CHANNEL_SOFTWARE |
-                               MALI_PROFILING_EVENT_REASON_SINGLE_SW_GPU_FREQ,
-                               rate, 1, 0, 0, 0);
+	gFreq = rate/1000000;
+	_mali_osk_profiling_add_event(MALI_PROFILING_EVENT_TYPE_SINGLE | 
+				MALI_PROFILING_EVENT_CHANNEL_GPU | 
+				MALI_PROFILING_EVENT_REASON_SINGLE_GPU_FREQ_VOLT_CHANGE, 
+				gFreq, gVolt, 0, 0, 0); 
 #endif
 
 	if (bis_vpll)
@@ -533,7 +522,6 @@ _mali_osk_errcode_t g3d_power_domain_control(int bpower_on)
 			timeout--;
 			_mali_osk_time_ubusydelay(100);
 		}
-		MALI_PRINTF(("MALI Power domain enabled"));		
 #endif //MALI_PMM_RUNTIME_JOB_CONTROL_ON
 	}
 	else
@@ -558,7 +546,6 @@ _mali_osk_errcode_t g3d_power_domain_control(int bpower_on)
 			timeout--;
 			_mali_osk_time_ubusydelay( 100);
 		}
-		MALI_PRINTF(("MALI Power domain disabled"));
 #endif //MALI_PMM_RUNTIME_JOB_CONTROL_ON
 	}
 
@@ -594,6 +581,7 @@ _mali_osk_errcode_t mali_platform_deinit()
 
 _mali_osk_errcode_t mali_platform_powerdown(u32 cores)
 {
+	trace_printk("SPI_GPU_PWR Idle\n");
 	MALI_DEBUG_PRINT(3,("power down is called in mali_platform_powerdown state %x core %x \n", gpu_power_state, cores));
 
 	if (gpu_power_state != 0) // power down after state is 0
@@ -609,14 +597,13 @@ _mali_osk_errcode_t mali_platform_powerdown(u32 cores)
 	{
 		MALI_PRINT(("mali_platform_powerdown gpu_power_state == 0 and cores %x \n", cores));
 	}
-	
-	//bPoweroff=1; //TODO
 
 	MALI_SUCCESS;
 }
 
 _mali_osk_errcode_t mali_platform_powerup(u32 cores)
 {
+	trace_printk("SPI_GPU_PWR Start\n");
 	MALI_DEBUG_PRINT(3,("power up is called in mali_platform_powerup state %x core %x \n", gpu_power_state, cores));
 
 	if (gpu_power_state == 0) // power up only before state is 0
@@ -633,8 +620,6 @@ _mali_osk_errcode_t mali_platform_powerup(u32 cores)
 	{
 		gpu_power_state = gpu_power_state | cores;
 	}
-
-	//bPoweroff=0; //TODO
 
 	MALI_SUCCESS;
 }

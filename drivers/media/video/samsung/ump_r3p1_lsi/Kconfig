@@ -56,4 +56,3 @@ config VIDEO_UMP_DEBUG
 	default n
 	help
 	  This enables UMP driver debug messages.
-

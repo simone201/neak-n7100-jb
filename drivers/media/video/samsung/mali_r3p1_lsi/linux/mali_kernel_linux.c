@@ -29,9 +29,6 @@
 #include "mali_platform.h"
 #include "mali_kernel_license.h"
 #include "mali_dma_buf.h"
-#if MALI_INTERNAL_TIMELINE_PROFILING_ENABLED
-#include "mali_profiling_internal.h"
-#endif
 
 /* Streamline support for the Mali driver */
 #if defined(CONFIG_TRACEPOINTS) && MALI_TIMELINE_PROFILING_ENABLED
@@ -54,9 +51,16 @@ module_param(mali_debug_level, int, S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IR
 MODULE_PARM_DESC(mali_debug_level, "Higher number, more dmesg output");
 
 /* By default the module uses any available major, but it's possible to set it at load time to a specific number */
+#if MALI_MAJOR_PREDEFINE
+int mali_major = 244;
+#else
 int mali_major = 0;
+#endif
 module_param(mali_major, int, S_IRUGO); /* r--r--r-- */
 MODULE_PARM_DESC(mali_major, "Device major number");
+
+module_param(mali_hang_check_interval, int, S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IROTH);
+MODULE_PARM_DESC(mali_hang_check_interval, "Interval at which to check for progress after the hw watchdog has been triggered");
 
 module_param(mali_max_job_runtime, int, S_IRUSR | S_IWUSR | S_IWGRP | S_IRGRP | S_IROTH);
 MODULE_PARM_DESC(mali_max_job_runtime, "Maximum allowed job runtime in msecs.\nJobs will be killed after this no matter what");
@@ -129,15 +133,6 @@ int mali_driver_init(void)
 	ret = map_errcode(mali_initialize_subsystems());
 	if (0 != ret) goto initialize_subsystems_failed;
 
-#if MALI_INTERNAL_TIMELINE_PROFILING_ENABLED
-        ret = _mali_internal_profiling_init(mali_boot_profiling ? MALI_TRUE : MALI_FALSE);
-        if (0 != ret)
-        {
-                /* No biggie if we wheren't able to initialize the profiling */
-                MALI_PRINT_ERROR(("Failed to initialize profiling, feature will be unavailable\n"));
-        }
-#endif
-
 	ret = initialize_sysfs();
 	if (0 != ret) goto initialize_sysfs_failed;
 
@@ -147,9 +142,6 @@ int mali_driver_init(void)
 
 	/* Error handling */
 initialize_sysfs_failed:
-#if MALI_INTERNAL_TIMELINE_PROFILING_ENABLED
-        _mali_internal_profiling_term();
-#endif
 	mali_terminate_subsystems();
 initialize_subsystems_failed:
 	mali_osk_low_level_mem_term();
@@ -168,10 +160,6 @@ void mali_driver_exit(void)
 	MALI_DEBUG_PRINT(2, ("Unloading Mali v%d device driver.\n",_MALI_API_VERSION));
 
 	/* No need to terminate sysfs, this will be done automatically along with device termination */
-
-#if MALI_INTERNAL_TIMELINE_PROFILING_ENABLED
-        _mali_internal_profiling_term();
-#endif
 
 	mali_terminate_subsystems();
 
