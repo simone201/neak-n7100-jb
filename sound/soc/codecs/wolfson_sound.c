@@ -698,12 +698,12 @@ static void set_eq(void)
 	// 2. speaker tuning is enabled, there is no call and there is no headphone connected
 
 	// set internal state variables
-	if (!is_call && is_headphone && eq != EQ_OFF)
+	if (/*!is_call && */is_headphone && eq != EQ_OFF)
 	{
 		is_eq = true;
 		is_eq_headphone = true;
 	}
-	else if (!is_call && !is_headphone && speaker_tuning == ON)
+	else if (/*!is_call && */!is_headphone && speaker_tuning == ON)
 	{
 		is_eq = true;
 		is_eq_headphone = false;
