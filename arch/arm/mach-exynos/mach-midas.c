@@ -889,9 +889,10 @@ static struct s3c_mshci_platdata exynos4_mshc_pdata __initdata = {
 				  MMC_CAP_UHS_DDR50 | MMC_CAP_CMD23,
 #ifdef CONFIG_MMC_MSHCI_ENABLE_CACHE
 	.host_caps2		= MMC_CAP2_ADAPT_PACKED | MMC_CAP2_PACKED_CMD |
-				  MMC_CAP2_CACHE_CTRL,
+				  MMC_CAP2_CACHE_CTRL | MMC_CAP2_POWEROFF_NOTIFY,
 #else
-	.host_caps2		= MMC_CAP2_ADAPT_PACKED | MMC_CAP2_PACKED_CMD,
+	.host_caps2		= MMC_CAP2_ADAPT_PACKED | MMC_CAP2_PACKED_CMD |
+				  MMC_CAP2_POWEROFF_NOTIFY,
 #endif
 #elif defined(CONFIG_EXYNOS4_MSHC_8BIT)
 	.max_width		= 8,
@@ -995,9 +996,9 @@ static void motor_en(bool enable)
 #ifdef CONFIG_MACH_BAFFIN
 static void motor_en(bool enable)
 {
-	gpio_direction_output(EXYNOS4_GPY2(2), enable);
-	printk(KERN_DEBUG "[VIB] motor_enabled GPIO GPY2(2) : %d\n",
-	       gpio_get_value(EXYNOS4_GPY2(2)));
+	gpio_direction_output(EXYNOS4_GPD0(0), enable);
+	printk(KERN_DEBUG "[VIB] motor_enabled GPIO GPD0(0) : %d\n",
+	       gpio_get_value(EXYNOS4_GPD0(0)));
 }
 #endif
 #if defined(CONFIG_MACH_T0) && defined(CONFIG_TARGET_LOCALE_KOR) || \
@@ -1768,7 +1769,7 @@ static struct samsung_battery_platform_data samsung_battery_pdata = {
 #elif defined(CONFIG_MACH_GC1)
 	.overheat_stop_temp = 600,
 	.overheat_recovery_temp = 400,
-	.freeze_stop_temp = -50,
+	.freeze_stop_temp = -30,
 	.freeze_recovery_temp = 0,
 #else
 	/* M0 EUR */
