@@ -1152,10 +1152,10 @@ static int do_read(struct fsg_dev *fsg)
 		curlun->sense_data = SS_LOGICAL_BLOCK_ADDRESS_OUT_OF_RANGE;
 		return -EINVAL;
 	}
-	file_offset = ((loff_t) lba) << 9;
+	file_offset = ((loff_t) lba) << 11;
 
 	/* Carry out the file reads */
-	amount_left = fsg->data_size_from_cmnd;
+	amount_left = fsg->data_size_from_cmnd * 4;
 	if (unlikely(amount_left == 0))
 		return -EIO;		// No default reply
 
@@ -2315,13 +2315,17 @@ static int check_command(struct fsg_dev *fsg, int cmnd_size,
 		return -EINVAL;
 	}
 
-	/* Check that only command bytes listed in the mask are non-zero */
-	fsg->cmnd[1] &= 0x1f;			// Mask away the LUN
-	for (i = 1; i < cmnd_size; ++i) {
-		if (fsg->cmnd[i] && !(mask & (1 << i))) {
-			if (curlun)
-				curlun->sense_data = SS_INVALID_FIELD_IN_CDB;
-			return -EINVAL;
+	/* Check that only command bytes listed in the mask are non-zero 
+	 * Some BIOSes put some non-zero values in READ_TOC requests in 
+	 * the last two bytes */
+	if (fsg->cmnd[0] != SC_READ_TOC) {
+		fsg->cmnd[1] &= 0x1f;			// Mask away the LUN
+		for (i = 1; i < cmnd_size; ++i) {
+			if (fsg->cmnd[i] && !(mask & (1 << i))) {
+				if (curlun)
+					curlun->sense_data = SS_INVALID_FIELD_IN_CDB;
+				return -EINVAL;
+			}
 		}
 	}
 
