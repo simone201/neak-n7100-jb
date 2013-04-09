@@ -592,8 +592,6 @@ on boot
     chmod 0644 /efs/h2k.dat
     mkdir /data/misc/radio/hatp 0775 radio system
 
-    start sysinit
-
     class_start core
     class_start main
 
@@ -753,10 +751,6 @@ service drm /system/bin/drmserver
 # org
 #   group drm system inet drmrpc sdcard_r
 # ]
-
-service sysinit /system/bin/logwrapper /system/xbin/busybox run-parts /system/etc/init.d
-    disabled
-    oneshot
 
 service media /system/bin/mediaserver
     class main
