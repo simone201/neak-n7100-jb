@@ -121,12 +121,12 @@ extern unsigned long avenrun[];		/* Load averages */
 extern void get_avenrun(unsigned long *loads, unsigned long offset, int shift);
 
 #define FSHIFT 11 /* bits of precision */
-#define LOAD_FREQ (4*HZ+122) /* 4.61 sec intervals */
+#define LOAD_FREQ (4*HZ+122) 	/* 4.61 sec intervals (4*200+122=922 ticks, 922/200=4.61 sec) */
 
-#define FIXED_1 (1UL<<FSHIFT) /* 1.0 as fixed-point */
-#define EXP_1 (FIXED_1-((FIXED_1*LOAD_FREQ)/(LOAD_FREQ/5*60UL)))
-#define EXP_5 (FIXED_1-((FIXED_1*LOAD_FREQ)/(LOAD_FREQ*1*60UL)))
-#define EXP_15 (FIXED_1-((FIXED_1*LOAD_FREQ)/(LOAD_FREQ*3*60UL)))
+#define FIXED_1 (1UL<<FSHIFT) 	/* 1.0 as fixed-point */
+#define EXP_1 1896		/* FIXED_1*(1/exp(LOAD_FREQ/(Hz*1*60))), FIXED_1=2048  */	 	
+#define EXP_5 2017		/* FIXED_1*(1/exp(LOAD_FREQ/(Hz*5*60))) */	
+#define EXP_15 2038		/* FIXED_1*(1/exp(LOAD_FREQ/(Hz*15*60))) */
 
 #define CALC_LOAD(load,exp,n) \
 	load *= exp; \
