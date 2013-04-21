@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: wl_cfg80211.h 363350 2012-10-17 08:29:23Z $
+ * $Id: wl_cfg80211.h 393930 2013-03-29 12:06:51Z $
  */
 
 #ifndef _wl_cfg80211_h_
@@ -62,21 +62,27 @@ struct wl_ibss;
 /* 0 invalidates all debug messages.  default is 1 */
 #define WL_DBG_LEVEL 0xFF
 
+#ifdef CUSTOMER_HW4
+#define CFG80211_ERROR_TEXT		"CFG80211-INFO2) "
+#else
+#define CFG80211_ERROR_TEXT		"CFG80211-ERROR) "
+#endif
+
 #if defined(DHD_DEBUG)
 #define	WL_ERR(args)									\
 do {										\
 	if (wl_dbg_level & WL_DBG_ERR) {				\
-			printk(KERN_INFO "CFG80211-INFO2) %s : ", __func__);	\
+			printk(KERN_INFO CFG80211_ERROR_TEXT "%s : ", __func__);	\
 			printk args;						\
-		} 								\
+		}								\
 } while (0)
 #else /* defined(DHD_DEBUG) */
 #define	WL_ERR(args)									\
 do {										\
 	if ((wl_dbg_level & WL_DBG_ERR) && net_ratelimit()) {				\
-			printk(KERN_INFO "CFG80211-INFO2) %s : ", __func__);	\
+			printk(KERN_INFO CFG80211_ERROR_TEXT "%s : ", __func__);	\
 			printk args;						\
-		} 								\
+		}								\
 } while (0)
 #endif /* defined(DHD_DEBUG) */
 
@@ -119,7 +125,7 @@ do {										\
 	if (wl_dbg_level & WL_DBG_ERR) {				\
 			printk(KERN_INFO "CFG80211-TRACE) %s : ", __func__);	\
 			printk args;						\
-		} 								\
+		}								\
 } while (0)
 #else
 #define	WL_TRACE_HW4			WL_TRACE
@@ -136,12 +142,13 @@ do {									\
 #define	WL_DBG(args)
 #endif				/* (WL_DBG_LEVEL > 0) */
 #define WL_PNO(x)
+#define WL_SD(x)
 
 
 #define WL_SCAN_RETRY_MAX	3
 #define WL_NUM_PMKIDS_MAX	MAXPMKID
 #define WL_SCAN_BUF_MAX 	(1024 * 8)
-#define WL_TLV_INFO_MAX 	1500
+#define WL_TLV_INFO_MAX		1500
 #define WL_SCAN_IE_LEN_MAX      2048
 #define WL_BSS_INFO_MAX		2048
 #define WL_ASSOC_INFO_MAX	512
@@ -153,15 +160,18 @@ do {									\
 #define WL_AP_MAX		256
 #define WL_FILE_NAME_MAX	256
 #define WL_DWELL_TIME 		200
-#define WL_MED_DWELL_TIME	400
+#define WL_MED_DWELL_TIME       400
 #define WL_MIN_DWELL_TIME	100
 #define WL_LONG_DWELL_TIME 	1000
 #define IFACE_MAX_CNT 		2
-#define WL_SCAN_CONNECT_DWELL_TIME_MS 		200
-#define WL_SCAN_JOIN_PROBE_INTERVAL_MS 		20
-#define WL_SCAN_JOIN_ACTIVE_DWELL_TIME_MS 	320
-#define WL_SCAN_JOIN_PASSIVE_DWELL_TIME_MS 	400
-#define WL_AF_TX_MAX_RETRY 	5
+#define WL_SCAN_CONNECT_DWELL_TIME_MS 		300
+#define WL_SCAN_JOIN_PROBE_INTERVAL_MS 		60
+#define WL_SCAN_JOIN_ACTIVE_DWELL_TIME_MS	320
+#define WL_SCAN_JOIN_PASSIVE_DWELL_TIME_MS	400
+#define WL_AF_TX_MAX_RETRY	5
+
+#define WL_AF_SEARCH_TIME_MAX		450
+#define WL_AF_TX_EXTRA_TIME_MAX		200
 
 #define WL_SCAN_TIMER_INTERVAL_MS	8000 /* Scan timeout */
 #define WL_CHANNEL_SYNC_RETRY 	5
@@ -169,7 +179,7 @@ do {									\
 
 /* Bring down SCB Timeout to 20secs from 60secs default */
 #ifndef WL_SCB_TIMEOUT
-#define WL_SCB_TIMEOUT	20
+#define WL_SCB_TIMEOUT 20
 #endif
 
 /* driver status */
@@ -403,22 +413,22 @@ struct escan_info {
 #if defined(STATIC_WL_PRIV_STRUCT)
 #ifndef CONFIG_DHD_USE_STATIC_BUF
 #error STATIC_WL_PRIV_STRUCT should be used with CONFIG_DHD_USE_STATIC_BUF
-#endif
-#if defined(DUAL_ESCAN_RESULT_BUFFER)
+#endif /* CONFIG_DHD_USE_STATIC_BUF */
+#if defined(CUSTOMER_HW4) && defined(DUAL_ESCAN_RESULT_BUFFER)
 	u8 *escan_buf[2];
 #else
 	u8 *escan_buf;
-#endif
+#endif /* CUSTOMER_HW4 && DUAL_ESCAN_RESULT_BUFFER */
 #else
-#if defined(DUAL_ESCAN_RESULT_BUFFER)
+#if defined(CUSTOMER_HW4) && defined(DUAL_ESCAN_RESULT_BUFFER)
 	u8 escan_buf[2][ESCAN_BUF_SIZE];
 #else
 	u8 escan_buf[ESCAN_BUF_SIZE];
-#endif
+#endif /* CUSTOMER_HW4 && DUAL_ESCAN_RESULT_BUFFER */
 #endif /* STATIC_WL_PRIV_STRUCT */
-#if defined(DUAL_ESCAN_RESULT_BUFFER)
+#if defined(CUSTOMER_HW4) && defined(DUAL_ESCAN_RESULT_BUFFER)
 	u8 cur_sync_id;
-#endif
+#endif /* CUSTOMER_HW4 && DUAL_ESCAN_RESULT_BUFFER */
 	struct wiphy *wiphy;
 	struct net_device *ndev;
 };
@@ -483,7 +493,7 @@ struct parsed_ies {
 
 #ifdef WL11U
 /* Max length of Interworking element */
-#define IW_IES_MAX_BUF_LEN 		9
+#define IW_IES_MAX_BUF_LEN		9
 #endif
 
 /* private data of cfg80211 interface */
@@ -523,7 +533,7 @@ struct wl_priv {
 #else
 	struct wl_connect_info conn_info;
 #endif
-
+	struct dentry		*debugfs;
 	struct wl_pmk_list *pmk_list;	/* wpa2 pmk list */
 	tsk_ctl_t event_tsk;  		/* task of main event handler thread */
 	void *pub;
@@ -550,7 +560,7 @@ struct wl_priv {
 	bool wlfc_on;
 	bool vsdb_mode;
 	bool roamoff_on_concurrent;
-	u8 *ioctl_buf;	/* ioctl buffer */
+	u8 *ioctl_buf;		/* ioctl buffer */
 	struct mutex ioctl_buf_sync;
 	u8 *escan_ioctl_buf;
 	u8 *extra_buf;	/* maily to grab assoc information */
@@ -584,6 +594,9 @@ struct wl_priv {
 	u32 iw_ie_len;
 #endif /* WL11U */
 	bool sched_scan_running;	/* scheduled scan req status */
+#ifdef WL_SCHED_SCAN
+	struct cfg80211_sched_scan_request *sched_scan_req;	/* scheduled scan req */
+#endif /* WL_SCHED_SCAN */
 #ifdef WL_HOST_BAND_MGMT
 	u8 curr_band;
 #endif /* WL_HOST_BAND_MGMT */
@@ -681,8 +694,8 @@ wl_set_status_all(struct wl_priv *wl, s32 status, u32 op)
 				return; /* change all status is not allowed */
 			default:
 				return; /* unknown operation */
-			}
 		}
+	}
 }
 static inline void
 wl_set_status_by_netdev(struct wl_priv *wl, s32 status,
@@ -797,7 +810,7 @@ wl_get_netinfo_by_netdev(struct wl_priv *wl, struct net_device *ndev)
 	(wl_set_status_by_netdev(wl, WL_STATUS_ ## stat, ndev, 1))
 #define wl_clr_drv_status(wl, stat, ndev)  \
 	(wl_set_status_by_netdev(wl, WL_STATUS_ ## stat, ndev, 2))
-#define wl_clr_drv_status_all(wl, stat) \
+#define wl_clr_drv_status_all(wl, stat)  \
 	(wl_set_status_all(wl, WL_STATUS_ ## stat, 2))
 #define wl_chg_drv_status(wl, stat, ndev)  \
 	(wl_set_status_by_netdev(wl, WL_STATUS_ ## stat, ndev, 4))
@@ -851,6 +864,7 @@ extern s32 wl_cfg80211_if_is_group_owner(void);
 extern chanspec_t wl_ch_host_to_driver(u16 channel);
 extern s32 wl_add_remove_eventmsg(struct net_device *ndev, u16 event, bool add);
 extern void wl_stop_wait_next_action_frame(struct wl_priv *wl, struct net_device *ndev);
+#ifdef WL_HOST_BAND_MGMT
 extern s32 wl_cfg80211_set_band(struct net_device *ndev, int band);
-extern int wl_cfg80211_update_power_mode(struct net_device *dev);
+#endif /* WL_HOST_BAND_MGMT */
 #endif				/* _wl_cfg80211_h_ */
