@@ -7,6 +7,6 @@ ro.debuggable=1
 persist.sys.usb.config=mtp,adb
 
 # For NEAK OTA Updater
-ro.kernel.id=Kernel Version-1.8
+ro.kernel.id=Kernel Version-1.9
 # For NEAK Configurator
-ro.neak.version=1.8x
+ro.neak.version=1.9x

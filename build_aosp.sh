@@ -22,9 +22,13 @@ TOOLCHAIN="/home/simone/android-toolchain-eabi-4.7/bin/arm-eabi-"
 #TOOLCHAIN="/home/simone/android/system/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-"
 ROOTFS_PATH="/home/simone/neak-n7100/ramdisk-aosp"
 
-export KBUILD_BUILD_VERSION="N.E.A.K-Note2-1.8x"
-export KERNELDIR=$KERNEL_PATH
+if [ -z "$1" ]; then
+	export KBUILD_BUILD_VERSION="N.E.A.K-Note2-1.9x"
+else
+	export KBUILD_BUILD_VERSION="N.E.A.K-Note2-$1x"
+fi;
 
+export KERNELDIR=$KERNEL_PATH
 export USE_SEC_FIPS_MODE=true
 
 echo "Cleaning latest build"
