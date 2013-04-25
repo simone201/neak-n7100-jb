@@ -526,7 +526,7 @@ static void set_dvfs_lock(struct mms_ts_info *info, uint32_t on)
 	// Helps in avoiding stuttering and lags while using heavy tasks
 	// by simone201
 	cur_freq = exynos_cpufreq_get_curfreq();
-	if(cur_freq > freq_lock)
+	if(cur_freq > freq_lock && on == 1) // only goto out, if new freq lock should get applied, to avoid beeing stuck at lock freq - DerTeufel
 		goto out;
 	
 	// We should force the research of the cpu lock level, because it might be changed - simone201
