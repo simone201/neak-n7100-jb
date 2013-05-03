@@ -49,11 +49,11 @@
 
 #include <asm/unaligned.h>
 
-// Touch Boost Control
-#include <linux/touch_boost_control.h>
-
 #ifdef CONFIG_AOSP_ROM_SUPPORT
 #include "../keyboard/cypress/cypress-touchkey.h"
+
+#ifdef CONFIG_TOUCHBOOST_CONTROL
+#include <linux/touch_boost_control.h>
 #endif
 
 #ifdef CONFIG_INPUT_FBSUSPEND
@@ -4406,9 +4406,11 @@ static struct i2c_driver mms_ts_driver = {
 	.id_table = mms_ts_id,
 };
 
+#ifdef CONFIG_TOUCHBOOST_CONTROL
 void update_boost_freq (unsigned int input_boost_freq) {
 	boost_freq = input_boost_freq;
 }
+#endif
 
 static int __init mms_ts_init(void)
 {
