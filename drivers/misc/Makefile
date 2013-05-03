@@ -94,3 +94,6 @@ obj-$(CONFIG_FSYNC_CONTROL)  += fsync_control.o
 
 # TouchBooster Control
 obj-$(CONFIG_TOUCHBOOST_CONTROL)  += touch_boost_control.o
+
+# TouchWake
+obj-$(CONFIG_TOUCH_WAKE)  += touch_wake.o

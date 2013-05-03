@@ -758,5 +758,11 @@ config TOUCHBOOST_CONTROL
     default y
     help
       Say Y here to enable TouchBoost Control
+      
+config TOUCH_WAKE
+	bool "Support for Touch Wake"
+	default y
+	help
+		Say Y here to enable Touch Wake 
 
 endif # MISC_DEVICES
