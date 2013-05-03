@@ -51,6 +51,7 @@
 
 #ifdef CONFIG_AOSP_ROM_SUPPORT
 #include "../keyboard/cypress/cypress-touchkey.h"
+#endif
 
 #ifdef CONFIG_TOUCHBOOST_CONTROL
 #include <linux/touch_boost_control.h>
