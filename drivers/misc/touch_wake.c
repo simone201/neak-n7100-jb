@@ -31,7 +31,7 @@ static bool touch_disabled = false;
 static bool device_suspended = false;
 static bool timed_out = true;
 static bool prox_near = false;
-static unsigned int touchoff_delay = 20000;
+static unsigned int touchoff_delay = 2000;
 
 static void touchwake_touchoff(struct work_struct * touchoff_work);
 static DECLARE_DELAYED_WORK(touchoff_work, touchwake_touchoff);
