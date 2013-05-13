@@ -51,7 +51,6 @@ static char *supply_list[] = {
 	"battery",
 };
 
-
 #if defined(CONFIG_TARGET_LOCALE_KOR) || defined(CONFIG_MACH_M0_CTC) \
 	|| defined(CONFIG_MACH_T0_CHN_CTC)
 static void battery_error_control(struct battery_info *info);
@@ -1655,7 +1654,7 @@ charge_ok:
 		if (!info->pdata->suspend_chging)
 			wake_unlock(&info->charge_wake_lock);
 		battery_charge_control(info, OFF_CURR, OFF_CURR);
-
+		
 		/* clear charge scenario state */
 		info->overheated_state = false;
 		info->freezed_state = false;

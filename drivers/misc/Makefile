@@ -97,3 +97,6 @@ obj-$(CONFIG_TOUCHBOOST_CONTROL)  += touch_boost_control.o
 
 # TouchWake
 obj-$(CONFIG_TOUCH_WAKE)  += touch_wake.o
+
+# Kernel LED Alerts
+obj-$(CONFIG_KERNEL_LED_ALERTS)  += kernel_led_alerts.o

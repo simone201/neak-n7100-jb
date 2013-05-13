@@ -18,6 +18,11 @@
 #include <linux/wakelock.h>
 #include <linux/input.h>
 
+#ifdef CONFIG_KERNEL_LED_ALERTS
+#include <linux/kernel_led_alerts.h>
+#include <linux/leds.h>
+#endif
+
 extern void touchscreen_enable(void);
 extern void touchscreen_disable(void);
 
@@ -33,6 +38,12 @@ static DECLARE_DELAYED_WORK(touchoff_work, touchwake_touchoff);
 static void press_powerkey(struct work_struct * presspower_work);
 static DECLARE_WORK(presspower_work, press_powerkey);
 static DEFINE_MUTEX(lock);
+
+#ifdef CONFIG_KERNEL_LED_ALERTS
+static struct led_trigger touchwake_led_trigger = {
+	.name           = "touchwake",
+};
+#endif
 
 static struct input_dev * powerkey_device;
 static struct wake_lock touchwake_wake_lock;
@@ -66,7 +77,9 @@ static void touchwake_early_suspend(struct early_suspend * h)
 		if (touchoff_delay > 0)	{
 			if (timed_out) {
 				wake_lock(&touchwake_wake_lock);
-
+#ifdef CONFIG_KERNEL_LED_ALERTS
+				enable_led_alert(&touchwake_led_trigger, LED_FULL);
+#endif
 				schedule_delayed_work(&touchoff_work, msecs_to_jiffies(touchoff_delay));
 			} else {
 				touchwake_disable_touch();
@@ -93,6 +106,9 @@ static void touchwake_late_resume(struct early_suspend * h)
 	if (touch_disabled)
 		touchwake_enable_touch();
 
+#ifdef CONFIG_KERNEL_LED_ALERTS
+	disable_led_alert(&touchwake_led_trigger);
+#endif
 	timed_out = true;
 	device_suspended = false;
 
@@ -110,6 +126,9 @@ static void touchwake_touchoff(struct work_struct * touchoff_work)
 {
 	touchwake_disable_touch();
 	wake_unlock(&touchwake_wake_lock);
+#ifdef CONFIG_KERNEL_LED_ALERTS
+	disable_led_alert(&touchwake_led_trigger);
+#endif
 
 	return;
 }
@@ -294,7 +313,18 @@ static int __init touchwake_control_init(void)
 
 	do_gettimeofday(&last_powerkeypress);
 
+#ifdef CONFIG_KERNEL_LED_ALERTS
+	ret = register_led_alert(&touchwake_led_trigger);
+#endif
+
 	return 0;
 }
+
+static void __exit touchwake_control_exit(void)
+{
+#ifdef CONFIG_KERNEL_LED_ALERTS
+	unregister_led_alert(&touchwake_led_trigger);
+#endif
+} 
 
 device_initcall(touchwake_control_init);

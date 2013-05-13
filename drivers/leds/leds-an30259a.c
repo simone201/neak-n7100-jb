@@ -91,16 +91,19 @@ static struct an30259_led_conf led_conf[] = {
 		.brightness = LED_OFF,
 		.max_brightness = LED_R_CURRENT,
 		.flags = 0,
+		.default_trigger = "thermal",
 	}, {
 		.name = "led_g",
 		.brightness = LED_OFF,
 		.max_brightness = LED_G_CURRENT,
 		.flags = 0,
+		.default_trigger = "battery-full",
 	}, {
 		.name = "led_b",
 		.brightness = LED_OFF,
 		.max_brightness = LED_B_CURRENT,
 		.flags = 0,
+		.default_trigger = "touchwake",
 	}
 };
 
@@ -828,6 +831,7 @@ static int __devinit an30259a_initialize(struct i2c_client *client,
 	led->cdev.brightness = led_conf[channel].brightness;
 	led->cdev.max_brightness = led_conf[channel].max_brightness;
 	led->cdev.flags = led_conf[channel].flags;
+	led->cdev.default_trigger = led_conf[channel].default_trigger;
 
 	ret = led_classdev_register(dev, &led->cdev);
 

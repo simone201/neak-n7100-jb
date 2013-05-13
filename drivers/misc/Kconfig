@@ -763,6 +763,12 @@ config TOUCH_WAKE
 	bool "Support for Touch Wake"
 	default y
 	help
-		Say Y here to enable Touch Wake 
+		Say Y here to enable Touch Wake
+		
+config KERNEL_LED_ALERTS
+	bool "Support for Kernel Led Alerts"
+	default y
+	help
+		Say Y here to enable Kernel Led Alerts
 
 endif # MISC_DEVICES

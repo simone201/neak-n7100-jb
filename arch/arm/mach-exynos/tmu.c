@@ -44,12 +44,23 @@
 #include <mach/dev.h>
 #endif
 
+#ifdef CONFIG_KERNEL_LED_ALERTS
+#include <linux/leds.h>
+#include <linux/kernel_led_alerts.h>
+#endif
+
 static enum {
 ENABLE_TEMP_MON	= 0x1,
 ENABLE_TEST_MODE = 0x2,
 } enable_mask = ENABLE_TEMP_MON | ENABLE_TEST_MODE;
 module_param_named(enable_mask, enable_mask, uint, 0644);
 #define ENABLE_DBGMASK (ENABLE_TEMP_MON | ENABLE_TEST_MODE)
+
+#ifdef CONFIG_KERNEL_LED_ALERTS
+static struct led_trigger thermal_led_trigger = {
+	.name     = "thermal",
+};
+#endif
 
 /* for factory mode */
 #define CONFIG_TMU_SYSFS
@@ -559,6 +570,9 @@ static void exynos4_handler_tmu_state(struct work_struct *work)
 		/* 1. change state: 1st-throttling */
 		if (cur_temp >= data->ts.start_1st_throttle) {
 			info->tmu_state = TMU_STATUS_THROTTLED;
+#ifdef CONFIG_KERNEL_LED_ALERTS
+			enable_led_alert(&thermal_led_trigger, LED_FULL);
+#endif
 			pr_info("change state: normal->throttle.\n");
 #if defined(CONFIG_TC_VOLTAGE)
 		/* check whether temp compesation need or not */
@@ -621,6 +635,7 @@ static void exynos4_handler_tmu_state(struct work_struct *work)
 		} else if ((cur_temp <= data->ts.stop_1st_throttle)
 			&& (trend < 0)) {
 			info->tmu_state = TMU_STATUS_NORMAL;
+			disable_led_alert(&thermal_led_trigger);
 			pr_info("change state: 1st throttle->normal.\n");
 		}
 		break;
@@ -1409,11 +1424,17 @@ static struct platform_driver s5p_tmu_driver = {
 
 static int __init s5p_tmu_driver_init(void)
 {
+#ifdef CONFIG_KERNEL_LED_ALERTS
+	register_led_alert(&thermal_led_trigger);
+#endif
 	return platform_driver_register(&s5p_tmu_driver);
 }
 
 static void __exit s5p_tmu_driver_exit(void)
 {
+#ifdef CONFIG_KERNEL_LED_ALERTS
+	unregister_led_alert(&thermal_led_trigger);
+#endif
 	platform_driver_unregister(&s5p_tmu_driver);
 }
 late_initcall(s5p_tmu_driver_init);
