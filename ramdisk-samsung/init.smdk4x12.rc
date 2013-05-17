@@ -31,7 +31,7 @@ on early-init
 on init
     exec /sbin/ffu
 # WFD CES Demo
-chmod 0660 /dev/graphics/fb5
+chmod 0666 /dev/graphics/fb5
 
 # Vibetonz
 export VIBE_PIPE_PATH /dev/pipes
