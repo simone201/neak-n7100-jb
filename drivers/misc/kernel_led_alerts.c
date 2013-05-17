@@ -15,7 +15,7 @@
 
 #define LED_ALERTS_VERSION 1
 
-static bool led_alerts_state = true;
+static bool led_alerts_state = false;
 
 void enable_led_alert(struct led_trigger *trigger, enum led_brightness brightness) {
 	if(led_alerts_state) {
