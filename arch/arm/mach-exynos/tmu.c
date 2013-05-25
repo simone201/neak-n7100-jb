@@ -635,7 +635,9 @@ static void exynos4_handler_tmu_state(struct work_struct *work)
 		} else if ((cur_temp <= data->ts.stop_1st_throttle)
 			&& (trend < 0)) {
 			info->tmu_state = TMU_STATUS_NORMAL;
+#ifdef CONFIG_KERNEL_LED_ALERTS
 			disable_led_alert(&thermal_led_trigger);
+#endif
 			pr_info("change state: 1st throttle->normal.\n");
 		}
 		break;
