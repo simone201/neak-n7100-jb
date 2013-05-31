@@ -12,6 +12,9 @@
 #ifndef _LINUX_LED_ALERTS_H
 #define _LINUX_LED_ALERTS_H
 
+bool is_led_alert_enabled(void);
+bool is_led_alert_triggered(void);
+
 void enable_led_alert(struct led_trigger *trigger, enum led_brightness brightness);
 void disable_led_alert(struct led_trigger *trigger);
 int register_led_alert(struct led_trigger *trigger);

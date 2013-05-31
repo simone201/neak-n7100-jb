@@ -25,6 +25,10 @@
 #include <linux/workqueue.h>
 #include <linux/wakelock.h>
 
+#ifdef CONFIG_KERNEL_LED_ALERTS
+#include <linux/kernel_led_alerts.h>
+#endif
+
 /* AN30259A register map */
 #define AN30259A_REG_SRESET		0x00
 #define AN30259A_REG_LEDON		0x01
@@ -331,10 +335,21 @@ static void an30259a_start_led_pattern(int mode)
 	if (mode > POWERING)
 		return;
 	/* Set all LEDs Off */
+#ifdef CONFIG_KERNEL_LED_ALERTS
+	if (mode == LED_OFF && !is_led_alert_enabled()) {
+		an30259a_reset_register_work(reset);
+		return;
+	}
+	else if (mode == LED_OFF && is_led_alert_enabled() && !is_led_alert_triggered()) {
+		an30259a_reset_register_work(reset);
+		return;
+	}
+#else
 	an30259a_reset_register_work(reset);
 	if (mode == LED_OFF)
 		return;
-
+#endif
+		
 	/* Set to low power consumption mode */
 	if (LED_LOWPOWER_MODE == 1)
 		LED_DYNAMIC_CURRENT = 0x8;

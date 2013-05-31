@@ -16,10 +16,22 @@
 #define LED_ALERTS_VERSION 1
 
 static bool led_alerts_state = false;
+static bool led_triggered_alert = false;
+
+bool is_led_alert_enabled(void) {
+	return led_alerts_state;
+}
+EXPORT_SYMBOL(is_led_alert_enabled);
+
+bool is_led_alert_triggered(void) {
+	return led_triggered_alert;
+}
+EXPORT_SYMBOL(is_led_alert_triggered);
 
 void enable_led_alert(struct led_trigger *trigger, enum led_brightness brightness) {
 	if(led_alerts_state) {
 		led_trigger_event(trigger, brightness);
+		led_triggered_alert = true;
 	}
 	return;
 }
@@ -28,6 +40,7 @@ EXPORT_SYMBOL(enable_led_alert);
 void disable_led_alert(struct led_trigger *trigger) {
 	if(led_alerts_state) {
 		led_trigger_event(trigger, LED_OFF);
+		led_triggered_alert = false;
 	}
 	return;
 }
@@ -58,6 +71,7 @@ static ssize_t alerts_status_store(struct device *dev, struct device_attribute *
 			led_alerts_state = true;
 		} else if (data == 0) {
 			pr_info("%s: LED Alerts disabled\n", __FUNCTION__);
+			led_triggered_alert = false;
 			led_alerts_state = false;
 		} else {
 			pr_info("%s: invalid input range %u\n", __FUNCTION__, data);
