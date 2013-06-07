@@ -23,7 +23,7 @@ TOOLCHAIN="/home/simone/android-toolchain-eabi-4.7/bin/arm-eabi-"
 ROOTFS_PATH="/home/simone/neak-n7100/ramdisk-samsung"
 
 if [ -z "$1" ]; then
-	export KBUILD_BUILD_VERSION="N.E.A.K-Note2-2.0.1x"
+	export KBUILD_BUILD_VERSION="N.E.A.K-Note2-2.0.2x"
 else
 	export KBUILD_BUILD_VERSION="N.E.A.K-Note2-$1x"
 fi;
