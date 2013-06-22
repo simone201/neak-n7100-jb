@@ -82,7 +82,6 @@ scripts/mod/elfconfig.h
 #
 # Generated include files
 #
-include/asm
 include/asm-arm
 include/config
 include/linux/autoconf.h
