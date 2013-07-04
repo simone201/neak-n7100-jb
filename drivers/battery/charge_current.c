@@ -21,6 +21,9 @@ int charge_current_cdp = 1000;
 int charge_current_usb = 475;
 int charge_current_dock = 1700;
 
+bool ignore_power = false;
+bool ignore_margin = false;
+
 static ssize_t charge_current_show(struct device *dev, struct device_attribute *attr, char *buf) {
 	return sprintf(buf, "AC: %d\nCDP: %d\nUSB: %d\nDock: %d\n",
 		charge_current_ac, charge_current_cdp, charge_current_usb, charge_current_dock);
@@ -43,10 +46,64 @@ static ssize_t charge_current_store(struct device *dev, struct device_attribute 
 	return count;	
 }
 
+static ssize_t ignore_pwr_show(struct device *dev, struct device_attribute *attr, char *buf) {
+	return sprintf(buf, "%u\n", (ignore_power ? 1 : 0));
+}
+
+static ssize_t ignore_pwr_store(struct device *dev, struct device_attribute *attr, const char *buf, 
+								size_t size) {
+	unsigned int data;
+
+	if(sscanf(buf, "%u\n", &data) == 1) {
+		pr_devel("%s: %u \n", __FUNCTION__, data);
+
+		if (data == 1) {
+			ignore_power = true;
+		} else if (data == 0) {
+			ignore_power = false;
+		} else {
+			pr_info("%s: invalid input range %u\n", __FUNCTION__, data);
+		}
+	} else 	{
+		pr_info("%s: invalid input\n", __FUNCTION__);
+	}
+
+	return size;
+}
+
+static ssize_t ignore_mar_show(struct device *dev, struct device_attribute *attr, char *buf) {
+	return sprintf(buf, "%u\n", (ignore_power ? 1 : 0));
+}
+
+static ssize_t ignore_mar_store(struct device *dev, struct device_attribute *attr, const char *buf, 
+								size_t size) {
+	unsigned int data;
+
+	if(sscanf(buf, "%u\n", &data) == 1) {
+		pr_devel("%s: %u \n", __FUNCTION__, data);
+
+		if (data == 1) {
+			ignore_margin = true;
+		} else if (data == 0) {
+			ignore_margin = false;
+		} else {
+			pr_info("%s: invalid input range %u\n", __FUNCTION__, data);
+		}
+	} else 	{
+		pr_info("%s: invalid input\n", __FUNCTION__);
+	}
+
+	return size;
+}
+
 static DEVICE_ATTR(charge_current, S_IRUGO | S_IWUGO, charge_current_show, charge_current_store);
+static DEVICE_ATTR(ignore_pwr, S_IRUGO | S_IWUGO, ignore_pwr_show, ignore_pwr_store);
+static DEVICE_ATTR(ignore_mar, S_IRUGO | S_IWUGO, ignore_mar_show, ignore_mar_store);
 
 static struct attribute *charge_current_attributes[] = {
 	&dev_attr_charge_current.attr,
+	&dev_attr_ignore_pwr.attr,
+	&dev_attr_ignore_mar.attr,
 	NULL
 };
 

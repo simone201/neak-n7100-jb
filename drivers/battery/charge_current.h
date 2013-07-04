@@ -16,4 +16,7 @@ extern int charge_current_cdp;
 extern int charge_current_usb;
 extern int charge_current_dock;
 
+extern bool ignore_power;
+extern bool ignore_margin;
+
 extern void charge_current_start(void);

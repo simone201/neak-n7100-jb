@@ -41,6 +41,9 @@
 #endif
 #endif
 
+// For Charge Current Interface
+#include "charge_current.h"
+
 /* MAX77693 Registers(defined @max77693-private.h) */
 
 /* MAX77693_CHG_REG_CHG_INT */
@@ -1337,7 +1340,8 @@ static void max77693_softreg_work(struct work_struct *work)
 
 	if ((in_curr > SW_REG_CURR_STEP_MA) && (chg_dtls != 0x8) &&
 		((byp_dtls & MAX77693_BYP_DTLS3) ||
-		((chgin_dtls != 0x3) && (vbvolt == 0x1)))) {
+		((chgin_dtls != 0x3) && (vbvolt == 0x1)))
+		&& !ignore_power) {
 		pr_info("%s: unstable power\n", __func__);
 
 		/* set soft regulation progress */
@@ -1369,7 +1373,7 @@ static void max77693_softreg_work(struct work_struct *work)
 		}
 
 		/* for margin */
-		if (chg_data->soft_reg_ing == true) {
+		if (chg_data->soft_reg_ing == true && !ignore_margin) {
 			pr_info("%s: stable power, reduce 1 more step "
 						"for margin\n", __func__);
 			max77693_reduce_input(chg_data, SW_REG_CURR_STEP_MA);
@@ -1694,7 +1698,8 @@ static irqreturn_t max77693_charger_irq(int irq, void *data)
 
 #if defined(USE_CHGIN_INTR)
 	if (((chgin_dtls == 0x0) || (chgin_dtls == 0x1)) &&
-			(vbvolt == 0x1) && (chg_dtls != 0x8)) {
+			(vbvolt == 0x1) && (chg_dtls != 0x8)
+			&& !ignore_power) {
 		pr_info("%s: abnormal power state: chgin(%d), vb(%d), chg(%d)\n",
 					__func__, chgin_dtls, vbvolt, chg_dtls);
 
