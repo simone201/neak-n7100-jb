@@ -9,6 +9,10 @@ on post-fs-data
     mkdir /cache/dalvik-cache 0771 system system
     chown system system /cache/dalvik-cache
     chmod 0771 /cache/dalvik-cache
+    mkdir /data/.ssh 0750 root shell
+
+    # Run sysinit
+    start sysinit
 
 on boot
     chown system system /sys/block/mmcblk0/queue/scheduler
@@ -38,3 +42,9 @@ service compcache /system/bin/handle_compcache
     user root
     group root
     oneshot
+
+# sysinit (/system/etc/init.d)
+service sysinit /system/bin/sysinit
+    user root
+    oneshot
+    disabled
