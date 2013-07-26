@@ -21,7 +21,7 @@
  * software in any way with any other Broadcom software provided under a license
  * other than the GPL, without Broadcom's express prior written consent.
  *
- * $Id: bcmsdh_sdmmc.c 383350 2013-02-06 12:59:26Z $
+ * $Id: bcmsdh_sdmmc.c 396613 2013-04-14 11:19:57Z $
  */
 #include <typedefs.h>
 
@@ -176,12 +176,14 @@ sdioh_attach(osl_t *osh, void *bar0, uint irq)
 
 		sd->client_block_size[1] = 64;
 		err_ret = sdio_set_block_size(gInstance->func[1], 64);
-		if (err_ret) {
-			sd_err(("bcmsdh_sdmmc: Failed to set F1 blocksize\n"));
-		}
 
 		/* Release host controller F1 */
 		sdio_release_host(gInstance->func[1]);
+		if (err_ret) {
+			sd_err(("bcmsdh_sdmmc: Failed to set F1 blocksize\n"));
+			MFREE(sd->osh, sd, sizeof(sdioh_info_t));
+			return NULL;
+		}
 	} else {
 		sd_err(("%s:gInstance->func[1] is null\n", __FUNCTION__));
 		MFREE(sd->osh, sd, sizeof(sdioh_info_t));
