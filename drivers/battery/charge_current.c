@@ -72,7 +72,7 @@ static ssize_t ignore_pwr_store(struct device *dev, struct device_attribute *att
 }
 
 static ssize_t ignore_mar_show(struct device *dev, struct device_attribute *attr, char *buf) {
-	return sprintf(buf, "%u\n", (ignore_power ? 1 : 0));
+	return sprintf(buf, "%u\n", (ignore_margin ? 1 : 0));
 }
 
 static ssize_t ignore_mar_store(struct device *dev, struct device_attribute *attr, const char *buf, 
