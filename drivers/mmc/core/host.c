@@ -108,9 +108,11 @@ static void mmc_host_clk_gate_delayed(struct mmc_host *host)
 	if (!host->clk_requests) {
 		spin_unlock_irqrestore(&host->clk_lock, flags);
 		/* wait only when clk_gate_delay is 0 */
+#ifndef CONFIG_WIMAX_CMC
 		if (!host->clkgate_delay) {
 			tick_ns = DIV_ROUND_UP(1000000000, freq);
 			ndelay(host->clk_delay * tick_ns);
+#ifndef CONFIG_WIMAX_CMC
 		}
 	} else {
 		/* New users appeared while waiting for this work */
