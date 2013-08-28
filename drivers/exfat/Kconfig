@@ -1,0 +1,4 @@
+config EXFAT
+	tristate "Samsung EXFAT"
+	help
+	  Samsung EXFAT support.
