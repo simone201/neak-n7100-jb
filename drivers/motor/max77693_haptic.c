@@ -24,11 +24,8 @@
 #include <linux/mfd/max77693.h>
 #include <linux/mfd/max77693-private.h>
 
-#define SEC_DEBUG_VIB
-#ifdef CONFIG_AOSP_ROM_SUPPORT
 static unsigned long pwm_val = 50; /* duty in percent */
 static int pwm_duty = 27787; /* duty value, 37050=100%, 27787=50%, 18525=0% */
-#endif
 
 struct max77693_haptic_data {
 	struct max77693_dev *max77693;
@@ -162,13 +159,8 @@ static void haptic_work(struct work_struct *work)
 
 		max77693_haptic_i2c(hap_data, true);
 
-#ifdef CONFIG_AOSP_ROM_SUPPORT
 		pwm_config(hap_data->pwm, pwm_duty, hap_data->pdata->period);
-		pr_info("[VIB] %s: pwm_config duty=%d\n", __func__, pwm_duty);
-#else
-		pwm_config(hap_data->pwm, hap_data->pdata->duty,
-		     hap_data->pdata->period);
-#endif
+        pr_info("[VIB] %s: pwm_config duty=%d\n", __func__, pwm_duty);
 		pwm_enable(hap_data->pwm);
 
 		if (hap_data->pdata->motor_en)
@@ -246,34 +238,18 @@ void vibtonz_pwm(int nForce)
 {
 	/* add to avoid the glitch issue */
 	static int prev_duty;
-#ifdef CONFIG_AOSP_ROM_SUPPORT
 	int pwm_period = 0;
-#else
-	int pwm_period = 0, pwm_duty = 0;
-#endif
 
 	if (g_hap_data == NULL) {
-		printk(KERN_ERR "[VIB] the motor is not ready!!!");
+		pr_err("[VIB] %s: the motor is not ready!!!", __func__);
 		return ;
 	}
-
-#ifndef CONFIG_AOSP_ROM_SUPPORT
-	pwm_period = g_hap_data->pdata->period;
-	pwm_duty = pwm_period / 2 + ((pwm_period / 2 - 2) * nForce) / 127;
-
-	if (pwm_duty > g_hap_data->pdata->duty)
-		pwm_duty = g_hap_data->pdata->duty;
-	else if (pwm_period - pwm_duty > g_hap_data->pdata->duty)
-		pwm_duty = pwm_period - g_hap_data->pdata->duty;
-#endif
 
 	/* add to avoid the glitch issue */
 	if (prev_duty != pwm_duty) {
 		prev_duty = pwm_duty;
 
-#ifdef CONFIG_AOSP_ROM_SUPPORT
         pr_debug("[VIB] %s: setting pwm_duty=%d", __func__, pwm_duty);
-#endif
 		pwm_config(g_hap_data->pwm, pwm_duty, pwm_period);
 	}
 #ifdef SEC_DEBUG_VIB
@@ -283,7 +259,6 @@ void vibtonz_pwm(int nForce)
 EXPORT_SYMBOL(vibtonz_pwm);
 #endif
 
-#ifdef CONFIG_AOSP_ROM_SUPPORT
 static ssize_t pwm_value_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -322,10 +297,8 @@ ssize_t pwm_value_store(struct device *dev,
 
 	return size;
 }
-
 static DEVICE_ATTR(pwm_value, S_IRUGO | S_IWUSR,
 		pwm_value_show, pwm_value_store);
-#endif
 
 static int max77693_haptic_probe(struct platform_device *pdev)
 {
@@ -396,6 +369,7 @@ static int max77693_haptic_probe(struct platform_device *pdev)
 		error = -EFAULT;
 		goto err_timed_output_register;
 	}
+
 	pr_err("[VIB] timed_output device is registrated\n");
 
 	/* User controllable pwm level */
