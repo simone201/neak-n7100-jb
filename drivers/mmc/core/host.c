@@ -112,7 +112,7 @@ static void mmc_host_clk_gate_delayed(struct mmc_host *host)
 		if (!host->clkgate_delay) {
 			tick_ns = DIV_ROUND_UP(1000000000, freq);
 			ndelay(host->clk_delay * tick_ns);
-#ifndef CONFIG_WIMAX_CMC
+#endif
 		}
 	} else {
 		/* New users appeared while waiting for this work */
