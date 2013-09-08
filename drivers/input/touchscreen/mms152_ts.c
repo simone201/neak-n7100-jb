@@ -49,10 +49,6 @@
 
 #include <asm/unaligned.h>
 
-#ifdef CONFIG_AOSP_ROM_SUPPORT
-#include "../keyboard/cypress/cypress-touchkey.h"
-#endif
-
 #ifdef CONFIG_TOUCHBOOST_CONTROL
 #include <linux/touch_boost_control.h>
 #endif
@@ -1026,10 +1022,6 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 #else
 			if (info->panel == 'M') {
 				if (info->finger_state[id] != 0) {
-#ifdef CONFIG_AOSP_ROM_SUPPORT
-					// report state to cypress-touchkey for backlight timeout
-					touchscreen_state_report(0);
-#endif
 					info->finger_state[id] = 0;
 #ifdef CONFIG_LCD_FREQ_SWITCH
 					dev_notice(&client->dev,
@@ -1045,10 +1037,6 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 				}
 			} else {
 				if (info->finger_state[id] != 0) {
-#ifdef CONFIG_AOSP_ROM_SUPPORT
-					// report state to cypress-touchkey for backlight timeout
-					touchscreen_state_report(0);
-#endif
 					info->finger_state[id] = 0;
 					dev_notice(&client->dev,
 						"R [%2d],([%4d],[%3d]),S:%d W:%d",
@@ -1090,10 +1078,6 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 			}
 #else
 			if (info->finger_state[id] == 0) {
-#ifdef CONFIG_AOSP_ROM_SUPPORT
-				// report state to cypress-touchkey for backlight timeout
-				touchscreen_state_report(1);
-#endif
 				info->finger_state[id] = 1;
 #ifdef CONFIG_LCD_FREQ_SWITCH
 				dev_notice(&client->dev,
@@ -1130,10 +1114,6 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 			}
 #else
 			if (info->finger_state[id] == 0) {
-#ifdef CONFIG_AOSP_ROM_SUPPORT
-				// report state to cypress-touchkey for backlight timeout
-				touchscreen_state_report(1);
-#endif
 				info->finger_state[id] = 1;
 				dev_notice(&client->dev,
 					"P [%2d],([%4d],[%3d]),S:%d W:%d",
