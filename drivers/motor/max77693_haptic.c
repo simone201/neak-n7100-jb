@@ -24,7 +24,6 @@
 #include <linux/mfd/max77693.h>
 #include <linux/mfd/max77693-private.h>
 
-#define SEC_DEBUG_VIB
 #ifdef CONFIG_AOSP_ROM_SUPPORT
 static unsigned long pwm_val = 50; /* duty in percent */
 static int pwm_duty = 27787; /* duty value, 37050=100%, 27787=50%, 18525=0% */
