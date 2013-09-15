@@ -9,7 +9,7 @@ TOOLCHAIN="/home/simone/android-toolchain-eabi-4.7/bin/arm-eabi-"
 ROOTFS_PATH=$1
 
 # Exports
-export KBUILD_BUILD_VERSION="N.E.A.K-Note2-2.1x"
+export KBUILD_BUILD_VERSION="N.E.A.K-Note2-2.2x"
 export KERNELDIR=$KERNEL_PATH
 export USE_SEC_FIPS_MODE=true
 
